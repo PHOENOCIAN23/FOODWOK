@@ -5,10 +5,9 @@ import { MenuItem, AddOnOption, CategoryOption } from '@/types/foodwok';
 import { menuItems as defaultMenuItems, standardAddOns as defaultAddOns } from '@/data/menuData';
 
 export const DEFAULT_CATEGORIES: CategoryOption[] = [
-  { id: 'rice', label: 'Rice' },
-  { id: 'pasta', label: 'Pasta' },
-  { id: 'specials', label: 'Specials' },
-  { id: 'shawarma', label: 'Shawarma' },
+  { id: 'the-chill', label: 'The Chill' },
+  { id: 'the-grill', label: 'The Grill' },
+  { id: 'your-food', label: 'Your Food' },
 ];
 
 interface MenuContextType {
