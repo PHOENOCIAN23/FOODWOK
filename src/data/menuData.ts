@@ -89,7 +89,7 @@ export const menuItems: MenuItem[] = [
     description: 'Jollof rice, Fried Rice, Chicken, Diced beef, Plantain, Coleslaw, Moin-Moin',
     fullDescription: 'An impressive grand feast loaded with smoky Jollof rice, savory Fried Rice, succulent quarter grilled chicken, tender diced beef, sweet fried plantains, creamy coleslaw, and steamed Moin-Moin. Perfect for sharing among 4 people.',
     priceInKobo: 2000000, // ₦20,000
-    image: 'https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/barrel-platter-for-4.jpg',
     rating: 5.0,
     ordersCount: '1,420 orders',
     badge: 'CHEF SPECIAL',
@@ -103,7 +103,7 @@ export const menuItems: MenuItem[] = [
     description: 'Puff Puff, Samosa, Spring Rolls, Gizzdodo, Suya',
     fullDescription: 'The ultimate sharing platter for 2 featuring golden sweet Puff Puff, crispy minced meat Samosas, crunchy vegetable Spring Rolls, spicy peppered Gizzdodo (gizzard and plantain), and flame-grilled beef Suya.',
     priceInKobo: 800000, // ₦8,000
-    image: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/chops-platter-for-2.jpg',
     rating: 4.9,
     ordersCount: '2,150 orders',
     badge: 'POPULAR',
@@ -117,7 +117,7 @@ export const menuItems: MenuItem[] = [
     description: 'Signature flame-grilled patty served with crisp lettuce, fresh tomato, melted cheese & house sauce',
     fullDescription: 'Our heavyweight house specialty burger featuring a juicy flame-grilled beef patty, melted cheddar cheese, crisp iceberg lettuce, ripe sliced tomatoes, caramelized onions, and signature Barrell house burger sauce on a toasted sesame brioche bun.',
     priceInKobo: 500000, // ₦5,000
-    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/barrell-burger.jpg',
     rating: 4.8,
     ordersCount: '980 orders',
     badge: 'FAVORITE',
@@ -131,7 +131,7 @@ export const menuItems: MenuItem[] = [
     description: 'Crispy marinated grilled chicken quarter served with golden french fries',
     fullDescription: 'Deeply spiced and marinated quarter chicken, grilled to juicy perfection with a crispy exterior, served alongside a generous portion of hot, salted golden french fries and pepper dip.',
     priceInKobo: 500000, // ₦5,000
-    image: 'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/chicken-and-chips.jpg',
     rating: 4.9,
     ordersCount: '3,410 orders',
     badge: 'POPULAR',
@@ -145,7 +145,7 @@ export const menuItems: MenuItem[] = [
     description: 'Spicy peppered roasted goat meat tossed with scotch bonnet habanero and sliced onions',
     fullDescription: 'Authentic Yoruba-style peppered goat meat. Tender goat cuts roasted over open flames, chopped into bite-sized pieces, and wok-tossed in crushed scotch bonnet peppers, red bell peppers, garlic, and sweet white onions.',
     priceInKobo: 300000, // ₦3,000
-    image: 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/asun.jpg',
     rating: 4.95,
     ordersCount: '2,890 orders',
     badge: 'HOT & SPICY',
@@ -236,7 +236,7 @@ export const menuItems: MenuItem[] = [
     description: 'Smokey jollof served with beef, Chicken or Turkey.',
     fullDescription: 'Our hallmark Nigerian party jollof rice cooked in rich tomato puree, bell pepper stew, and traditional wood-smoke seasoning. Served hot with your choice of Tender Beef, Spiced Chicken, or Turkey.',
     priceInKobo: 300000, // From ₦3,000
-    image: '/images/dishes/jollof-rice.jpg',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80',
     rating: 4.9,
     ordersCount: '5,200 orders',
     badge: 'POPULAR',
