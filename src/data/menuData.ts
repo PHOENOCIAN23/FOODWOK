@@ -173,7 +173,7 @@ export const menuItems: MenuItem[] = [
     description: 'Bite-sized portion of fresh Puff Puff, savory Samosas, and crunchy Spring Rolls',
     fullDescription: 'A classic single portion of freshly prepared Nigerian small chops featuring soft fluffy sweet Puff Puff balls, crispy spiced beef Samosas, and crunchy vegetable Spring Rolls.',
     priceInKobo: 300000, // ₦3,000
-    image: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/small-chops.jpg',
     rating: 4.75,
     ordersCount: '1,890 orders',
     isAvailable: true,
@@ -186,7 +186,7 @@ export const menuItems: MenuItem[] = [
     description: 'Hot and soothing traditional Nigerian pepper soup with aromatic local spices',
     fullDescription: 'Rich, broth-based spicy pepper soup slow-simmered with traditional West African herbs, grains of selim (uda), calabash nutmeg (ehu), scented leaves, and tender meat cutlets.',
     priceInKobo: 300000, // ₦3,000
-    image: 'https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/pepper-soup.jpg',
     rating: 4.8,
     ordersCount: '1,650 orders',
     badge: 'HOT & SPICY',
@@ -218,7 +218,7 @@ export const menuItems: MenuItem[] = [
     description: 'Sliced turkey breast, served with golden chips',
     fullDescription: 'Juicy sliced turkey breast seasoned with garlic, ginger, and rosemary, grilled to perfection and served alongside golden crispy french fries with house pepper glaze.',
     priceInKobo: 800000, // ₦8,000
-    image: 'https://images.unsplash.com/photo-1514944288352-fffac99f0bdf?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/turkey-and-chips.jpg',
     rating: 4.9,
     ordersCount: '1,560 orders',
     badge: 'POPULAR',
@@ -236,7 +236,7 @@ export const menuItems: MenuItem[] = [
     description: 'Smokey jollof served with beef, Chicken or Turkey.',
     fullDescription: 'Our hallmark Nigerian party jollof rice cooked in rich tomato puree, bell pepper stew, and traditional wood-smoke seasoning. Served hot with your choice of Tender Beef, Spiced Chicken, or Turkey.',
     priceInKobo: 300000, // From ₦3,000
-    image: 'https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/jollof-rice.jpg',
     rating: 4.9,
     ordersCount: '5,200 orders',
     badge: 'POPULAR',
@@ -264,7 +264,7 @@ export const menuItems: MenuItem[] = [
     description: 'Smokey jollof rice with assorted meats, pieces and spices.',
     fullDescription: 'The deluxe jollof experience! Loaded party jollof rice packed with diced beef, chicken pieces, gizzard, fried plantains, and aromatic Nigerian chef spices.',
     priceInKobo: 600000, // ₦6,000
-    image: 'https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/all-star-jollof.jpg',
     rating: 5.0,
     ordersCount: '2,490 orders',
     badge: 'CHEF SPECIAL',
@@ -278,7 +278,7 @@ export const menuItems: MenuItem[] = [
     description: 'Select from our Ogbono, Egusi or Vegetable soups for Fufu, Semo and Eba.',
     fullDescription: 'Traditional Nigerian swallow dish. Choose your preferred swallow (smooth Pounded Fufu, Semolina, or Garri Eba) served with rich Egusi, drawsome Ogbono, or nutritious Vegetable Soup cooked with stockfish and beef.',
     priceInKobo: 300000, // ₦3,000
-    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/wraps-and-soups.jpg',
     rating: 4.85,
     ordersCount: '2,100 orders',
     badge: 'TRADITIONAL',
@@ -319,7 +319,7 @@ export const menuItems: MenuItem[] = [
     description: 'Cooked beans served with beef and plantain.',
     fullDescription: 'Slow-cooked brown beans seasoned with palm oil, crayfish, and onions, served with soft golden fried sweet plantains and tender peppered beef.',
     priceInKobo: 300000, // ₦3,000
-    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/beans-and-plantain.jpg',
     rating: 4.7,
     ordersCount: '1,640 orders',
     isAvailable: true,
@@ -399,7 +399,7 @@ export const menuItems: MenuItem[] = [
     description: 'Sweet fried ripe plantain slices.',
     fullDescription: 'Golden caramelized sweet fried ripe yellow plantain dodo coins.',
     priceInKobo: 100000, // ₦1,000
-    image: 'https://images.unsplash.com/photo-1628837741008-338234929695?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/plantain.jpg',
     rating: 4.85,
     ordersCount: '3,700 orders',
     isAvailable: true,
