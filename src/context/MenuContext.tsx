@@ -65,15 +65,15 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestamp) {
           if (Array.isArray(data.items) && data.items.length > 0) {
             setItems(data.items);
-            localStorage.setItem('foodwok_admin_menu_items', JSON.stringify(data.items));
+            localStorage.setItem('foodwok_admin_v3_menu_items', JSON.stringify(data.items));
           }
           if (Array.isArray(data.addOns) && data.addOns.length > 0) {
             setAddOns(data.addOns);
-            localStorage.setItem('foodwok_admin_addons', JSON.stringify(data.addOns));
+            localStorage.setItem('foodwok_admin_v3_addons', JSON.stringify(data.addOns));
           }
           if (Array.isArray(data.categories) && data.categories.length > 0) {
             setCategories(data.categories);
-            localStorage.setItem('foodwok_admin_categories', JSON.stringify(data.categories));
+            localStorage.setItem('foodwok_admin_v3_categories', JSON.stringify(data.categories));
           }
           setLastServerSyncTimestamp(data.lastUpdated);
         }
@@ -82,9 +82,9 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [lastServerSyncTimestamp]);
 
   const loadSavedData = useCallback(() => {
-    const savedItemsRaw = localStorage.getItem('foodwok_admin_menu_items');
-    const savedAddOnsRaw = localStorage.getItem('foodwok_admin_addons');
-    const savedCategoriesRaw = localStorage.getItem('foodwok_admin_categories');
+    const savedItemsRaw = localStorage.getItem('foodwok_admin_v3_menu_items');
+    const savedAddOnsRaw = localStorage.getItem('foodwok_admin_v3_addons');
+    const savedCategoriesRaw = localStorage.getItem('foodwok_admin_v3_categories');
 
     let loadedCats = DEFAULT_CATEGORIES;
     let loadedItems = defaultMenuItems;
@@ -147,9 +147,9 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for cross-tab storage sync events (same browser)
     const handleStorageChange = (e: StorageEvent) => {
       if (
-        e.key === 'foodwok_admin_menu_items' ||
-        e.key === 'foodwok_admin_addons' ||
-        e.key === 'foodwok_admin_categories'
+        e.key === 'foodwok_admin_v3_menu_items' ||
+        e.key === 'foodwok_admin_v3_addons' ||
+        e.key === 'foodwok_admin_v3_categories'
       ) {
         loadSavedData();
       }
@@ -183,19 +183,19 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save to localStorage when state changes
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_menu_items', JSON.stringify(items));
+      localStorage.setItem('foodwok_admin_v3_menu_items', JSON.stringify(items));
     }
   }, [items, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_addons', JSON.stringify(addOns));
+      localStorage.setItem('foodwok_admin_v3_addons', JSON.stringify(addOns));
     }
   }, [addOns, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_categories', JSON.stringify(categories));
+      localStorage.setItem('foodwok_admin_v3_categories', JSON.stringify(categories));
     }
   }, [categories, isMounted]);
 
