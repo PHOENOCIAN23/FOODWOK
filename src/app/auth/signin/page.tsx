@@ -4,17 +4,28 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Phone, Mail, CheckCircle2, Lock } from 'lucide-react';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { login, googleLogin } = useAuth();
+  const { login, googleLogin, phoneLoginSendOTP, phoneLoginVerifyOTP } = useAuth();
+
+  const [authMethod, setAuthMethod] = useState<'EMAIL' | 'PHONE'>('EMAIL');
+
+  // Email state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // Phone state
+  const [phone, setPhone] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [confirmationObj, setConfirmationObj] = useState<any>(null);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
@@ -45,6 +56,41 @@ export default function SignInPage() {
       }
 
       setErrorMessage('Incorrect email or password. Please check your details or create an account below.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSendPhoneOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    if (!phone.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      const result = await phoneLoginSendOTP(phone, 'recaptcha-signin-container');
+      setConfirmationObj(result);
+      setOtpSent(true);
+    } catch (err: any) {
+      console.error('Phone OTP error:', err);
+      setErrorMessage(err.message || 'Failed to send SMS code. Please check phone number.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleVerifyPhoneOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage('');
+    if (!otpCode.trim()) return;
+
+    setIsSubmitting(true);
+    try {
+      await phoneLoginVerifyOTP(otpCode, confirmationObj);
+      router.push('/');
+    } catch (err: any) {
+      console.error('Verify OTP error:', err);
+      setErrorMessage(err.message || 'Invalid SMS verification code. Please check code.');
     } finally {
       setIsSubmitting(false);
     }
@@ -111,8 +157,8 @@ export default function SignInPage() {
       </div>
 
       {/* Right Side: Clean White Form */}
-      <div className="bg-white p-8 sm:p-12 md:p-16 flex flex-col justify-center max-w-md w-full mx-auto space-y-8">
-        <div className="space-y-2">
+      <div className="bg-white p-8 sm:p-12 md:p-16 flex flex-col justify-center max-w-md w-full mx-auto space-y-6">
+        <div className="space-y-1">
           <h2 className="text-3xl font-black text-slate-900 tracking-tight">
             Welcome back
           </h2>
@@ -128,49 +174,159 @@ export default function SignInPage() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="space-y-1.5">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              EMAIL ADDRESS
-            </label>
-            <input
-              type="email"
-              required
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:border-[#EB3223] font-medium"
-            />
-          </div>
+        {/* Auth Method Selector Toggle */}
+        <div className="grid grid-cols-2 gap-2 p-1.5 bg-slate-100/90 rounded-2xl border border-slate-200/60">
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMethod('EMAIL');
+              setErrorMessage('');
+            }}
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              authMethod === 'EMAIL'
+                ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+            }`}
+          >
+            <Mail className="w-4 h-4" />
+            <span>Email</span>
+          </button>
 
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => {
+              setAuthMethod('PHONE');
+              setErrorMessage('');
+            }}
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              authMethod === 'PHONE'
+                ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
+            }`}
+          >
+            <Phone className="w-4 h-4" />
+            <span>Phone SMS</span>
+          </button>
+        </div>
+
+        <div id="recaptcha-signin-container"></div>
+
+        {/* Email Sign In */}
+        {authMethod === 'EMAIL' && (
+          <form onSubmit={handleEmailSubmit} className="space-y-4 animate-fade-in">
+            <div className="space-y-1.5">
+              <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                EMAIL ADDRESS
+              </label>
+              <input
+                type="email"
+                required
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:border-[#EB3223] font-medium"
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 PASSWORD
               </label>
-              <a href="#" className="text-xs font-bold text-[#EB3223] hover:underline">
-                Forgot?
-              </a>
+              <input
+                type="password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:border-[#EB3223] font-medium"
+              />
             </div>
-            <input
-              type="password"
-              required
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:border-[#EB3223] font-medium"
-            />
-          </div>
 
-          {/* Warm Red CTA Button */}
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center cursor-pointer"
-          >
-            {isSubmitting ? 'Authenticating...' : 'Sign in to Foodwok'}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center cursor-pointer"
+            >
+              {isSubmitting ? 'Authenticating...' : 'Sign in to Foodwok'}
+            </button>
+          </form>
+        )}
+
+        {/* Phone SMS Sign In */}
+        {authMethod === 'PHONE' && (
+          <div className="space-y-4 animate-fade-in">
+            {!otpSent ? (
+              <form onSubmit={handleSendPhoneOTP} className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                    PHONE NUMBER (NIGERIA)
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="08012345678 or +234..."
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-sm focus:outline-none focus:border-[#EB3223] font-medium"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span>
+                    {isSubmitting ? 'Sending Code...' : 'Send SMS Verification Code'}
+                  </span>
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleVerifyPhoneOTP} className="space-y-4">
+                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-3.5 rounded-2xl flex items-start gap-2.5 text-xs font-bold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <div>
+                    Verification code sent to <strong>{phone}</strong>.
+                    <button
+                      type="button"
+                      onClick={() => setOtpSent(false)}
+                      className="block text-[#EB3223] underline font-extrabold mt-1"
+                    >
+                      Change Phone Number
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+                    ENTER 6-DIGIT SMS CODE
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={6}
+                    placeholder="123456"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200/80 rounded-2xl px-4 py-3.5 text-slate-900 text-center text-lg font-black tracking-widest focus:outline-none focus:border-[#EB3223]"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>
+                    {isSubmitting ? 'Verifying...' : 'Verify Code &amp; Sign In'}
+                  </span>
+                </button>
+              </form>
+            )}
+          </div>
+        )}
 
         <div className="relative flex items-center justify-center">
           <div className="border-t border-slate-100 w-full" />
