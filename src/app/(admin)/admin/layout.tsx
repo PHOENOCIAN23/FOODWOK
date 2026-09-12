@@ -120,13 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <span>ROLE: {role}</span>
             </span>
 
-            <Link
-              href="/"
-              className="hidden md:flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors whitespace-nowrap shrink-0"
-            >
-              <Store className="w-3.5 h-3.5 shrink-0" />
-              <span>Storefront</span>
-            </Link>
+
 
             {/* Admin Log Out Button */}
             <button

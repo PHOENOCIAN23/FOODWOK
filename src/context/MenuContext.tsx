@@ -1,25 +1,28 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { MenuItem, AddOnOption, CategoryOption } from '@/types/foodwok';
 import { menuItems as defaultMenuItems, standardAddOns as defaultAddOns } from '@/data/menuData';
 
 export const DEFAULT_CATEGORIES: CategoryOption[] = [
-  { id: 'the-chill', label: 'The Chill' },
-  { id: 'the-grill', label: 'The Grill' },
-  { id: 'your-food', label: 'Your Food' },
+  { id: 'all', label: 'All Meals' },
+  { id: 'rice', label: 'Rice Dishes' },
+  { id: 'swallow', label: 'Swallow & Soups' },
+  { id: 'grills', label: 'Grills & Barbecue' },
+  { id: 'sides', label: 'Sides & Small Bites' },
+  { id: 'drinks', label: 'Drinks & Beverages' },
 ];
 
 interface MenuContextType {
   items: MenuItem[];
   addOns: AddOnOption[];
   categories: CategoryOption[];
-  updateMenuItem: (updatedItem: MenuItem) => void;
-  addMenuItem: (newItem: Omit<MenuItem, 'id'>) => MenuItem;
+  updateMenuItem: (item: MenuItem) => void;
+  addMenuItem: (item: Omit<MenuItem, 'id'>) => MenuItem;
   deleteMenuItem: (itemId: string) => void;
   toggleMenuItemAvailability: (itemId: string) => void;
-  updateAddOn: (updatedAddOn: AddOnOption) => void;
-  addAddOn: (newAddOn: Omit<AddOnOption, 'id'>) => AddOnOption;
+  updateAddOn: (addOn: AddOnOption) => void;
+  addAddOn: (addOn: Omit<AddOnOption, 'id'>) => AddOnOption;
   deleteAddOn: (addOnId: string) => void;
   toggleAddOnAvailability: (addOnId: string) => void;
   addCategory: (label: string) => CategoryOption;
@@ -33,10 +36,14 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [addOns, setAddOns] = useState<AddOnOption[]>(defaultAddOns);
   const [categories, setCategories] = useState<CategoryOption[]>(DEFAULT_CATEGORIES);
   const [isMounted, setIsMounted] = useState(false);
-  const [lastServerSyncTimestamp, setLastServerSyncTimestamp] = useState<number>(0);
+  
+  const lastServerSyncTimestampRef = useRef<number>(0);
 
   // Helper to push state to server /api/menu-sync so Edge/Chrome/Safari/Firefox all stay 100% in sync
   const pushToServerSync = useCallback(async (currentItems: MenuItem[], currentAddOns: AddOnOption[], currentCats: CategoryOption[]) => {
+    const now = Date.now();
+    lastServerSyncTimestampRef.current = now;
+
     try {
       const res = await fetch('/api/menu-sync', {
         method: 'POST',
@@ -50,7 +57,7 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.ok) {
         const data = await res.json();
         if (data.lastUpdated) {
-          setLastServerSyncTimestamp(data.lastUpdated);
+          lastServerSyncTimestampRef.current = data.lastUpdated;
         }
       }
     } catch {}
@@ -62,29 +69,41 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await fetch('/api/menu-sync');
       if (res.ok) {
         const data = await res.json();
-        if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestamp) {
+        if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestampRef.current) {
           if (Array.isArray(data.items) && data.items.length > 0) {
             setItems(data.items);
-            localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(data.items));
+            try {
+              localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(data.items));
+            } catch {}
           }
           if (Array.isArray(data.addOns) && data.addOns.length > 0) {
             setAddOns(data.addOns);
-            localStorage.setItem('foodwok_admin_v5_addons', JSON.stringify(data.addOns));
+            try {
+              localStorage.setItem('foodwok_admin_v5_addons', JSON.stringify(data.addOns));
+            } catch {}
           }
           if (Array.isArray(data.categories) && data.categories.length > 0) {
             setCategories(data.categories);
-            localStorage.setItem('foodwok_admin_v5_categories', JSON.stringify(data.categories));
+            try {
+              localStorage.setItem('foodwok_admin_v5_categories', JSON.stringify(data.categories));
+            } catch {}
           }
-          setLastServerSyncTimestamp(data.lastUpdated);
+          lastServerSyncTimestampRef.current = data.lastUpdated;
         }
       }
     } catch {}
-  }, [lastServerSyncTimestamp]);
+  }, []);
 
   const loadSavedData = useCallback(() => {
-    const savedItemsRaw = localStorage.getItem('foodwok_admin_v5_menu_items');
-    const savedAddOnsRaw = localStorage.getItem('foodwok_admin_v5_addons');
-    const savedCategoriesRaw = localStorage.getItem('foodwok_admin_v5_categories');
+    let savedItemsRaw: string | null = null;
+    let savedAddOnsRaw: string | null = null;
+    let savedCategoriesRaw: string | null = null;
+
+    try {
+      savedItemsRaw = localStorage.getItem('foodwok_admin_v5_menu_items');
+      savedAddOnsRaw = localStorage.getItem('foodwok_admin_v5_addons');
+      savedCategoriesRaw = localStorage.getItem('foodwok_admin_v5_categories');
+    } catch {}
 
     let loadedCats = DEFAULT_CATEGORIES;
     let loadedItems = defaultMenuItems;
@@ -93,8 +112,8 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 1. Categories Merge
     if (savedCategoriesRaw) {
       try {
-        const parsedCategories: CategoryOption[] = JSON.parse(savedCategoriesRaw);
-        const mergedCategories = [...parsedCategories];
+        const parsedCats: CategoryOption[] = JSON.parse(savedCategoriesRaw);
+        const mergedCategories = [...parsedCats];
         for (const defCat of DEFAULT_CATEGORIES) {
           if (!mergedCategories.some((c) => c.id === defCat.id)) {
             mergedCategories.push(defCat);
@@ -183,19 +202,25 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Save to localStorage when state changes
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(items));
+      try {
+        localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(items));
+      } catch {}
     }
   }, [items, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_v5_addons', JSON.stringify(addOns));
+      try {
+        localStorage.setItem('foodwok_admin_v5_addons', JSON.stringify(addOns));
+      } catch {}
     }
   }, [addOns, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
-      localStorage.setItem('foodwok_admin_v5_categories', JSON.stringify(categories));
+      try {
+        localStorage.setItem('foodwok_admin_v5_categories', JSON.stringify(categories));
+      } catch {}
     }
   }, [categories, isMounted]);
 
@@ -237,12 +262,16 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleMenuItemAvailability = (itemId: string) => {
+    lastServerSyncTimestampRef.current = Date.now();
     const nextItems = items.map((item) =>
       item.id === itemId
         ? { ...item, isAvailable: item.isAvailable === false ? true : false }
         : item
     );
     setItems(nextItems);
+    try {
+      localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(nextItems));
+    } catch {}
     pushToServerSync(nextItems, addOns, categories);
   };
 
@@ -289,6 +318,8 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const toggleAddOnAvailability = (addOnId: string) => {
+    lastServerSyncTimestampRef.current = Date.now();
+
     const nextAddOns = addOns.map((a) => {
       if (a.id === addOnId) {
         return { ...a, isAvailable: a.isAvailable === false ? true : false };
@@ -308,6 +339,10 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setAddOns(nextAddOns);
     setItems(nextItems);
+    try {
+      localStorage.setItem('foodwok_admin_v5_addons', JSON.stringify(nextAddOns));
+      localStorage.setItem('foodwok_admin_v5_menu_items', JSON.stringify(nextItems));
+    } catch {}
     pushToServerSync(nextItems, nextAddOns, categories);
   };
 
@@ -315,10 +350,11 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems(defaultMenuItems);
     setAddOns(defaultAddOns);
     setCategories(DEFAULT_CATEGORIES);
-    localStorage.removeItem('foodwok_admin_menu_items');
-    localStorage.removeItem('foodwok_admin_addons');
-    localStorage.removeItem('foodwok_admin_categories');
-    pushToServerSync(defaultMenuItems, defaultAddOns, DEFAULT_CATEGORIES);
+    try {
+      localStorage.removeItem('foodwok_admin_v5_menu_items');
+      localStorage.removeItem('foodwok_admin_v5_addons');
+      localStorage.removeItem('foodwok_admin_v5_categories');
+    } catch {}
   };
 
   return (

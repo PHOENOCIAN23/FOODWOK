@@ -230,7 +230,8 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     items: CartItem[],
     subtotalInKobo: number,
     deliveryFeeInKobo: number,
-    totalInKobo: number
+    totalInKobo: number,
+    paymentStatus: 'PAID' | 'PENDING' = 'PAID'
   ): Order => {
     const randomDigits = Math.floor(10000 + Math.random() * 90000);
     const pstkRef = `pstk_ref_${randomDigits}_live`;
@@ -238,9 +239,9 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newOrder: Order = {
       id: `FW-${randomDigits}`,
       status: 'received',
-      paymentStatus: 'PENDING',
+      paymentStatus: paymentStatus,
       paystackReference: pstkRef,
-      paystackVerified: false,
+      paystackVerified: paymentStatus === 'PAID',
       items,
       deliveryDetails,
       subtotalInKobo,
@@ -369,7 +370,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const activeOrders = orders.filter((o) => o.status !== 'delivered');
   const pastOrders = orders.filter((o) => o.status === 'delivered');
-  const paidKitchenOrders = orders.filter((o) => o.paymentStatus === 'PAID');
+  const paidKitchenOrders = orders;
 
   return (
     <OrderContext.Provider
