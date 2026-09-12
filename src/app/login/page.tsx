@@ -25,7 +25,27 @@ function LoginContent() {
       router.push('/');
     } catch (err: any) {
       console.error('Login error:', err);
-      setErrorMessage(err.message || 'Failed to sign in. Please check your credentials.');
+      const code = err?.code || '';
+      const msg = err?.message || '';
+
+      let isUnregistered = code === 'auth/user-not-found' || msg.includes('user-not-found');
+
+      if (!isUnregistered && email) {
+        try {
+          const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
+          const data = await res.json();
+          if (data && !data.exists) {
+            isUnregistered = true;
+          }
+        } catch {}
+      }
+
+      if (isUnregistered) {
+        router.push(`/auth/signup?email=${encodeURIComponent(email)}&notice=not_registered`);
+        return;
+      }
+
+      setErrorMessage('Incorrect email or password. Please check your details or create an account below.');
     } finally {
       setIsSubmitting(false);
     }

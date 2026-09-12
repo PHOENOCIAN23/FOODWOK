@@ -1,24 +1,34 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ChevronLeft, MailCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ChevronLeft, MailCheck, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const emailParam = searchParams.get('email') || '';
+  const noticeParam = searchParams.get('notice');
+
   const { signup } = useAuth();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailParam);
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    if (emailParam) {
+      setEmail(emailParam);
+    }
+  }, [emailParam]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,9 +63,8 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-      {/* Left Side: Warm Banner with clear, vibrant dish photo */}
+      {/* Left Side: Warm Banner with clear dish photo */}
       <div className="relative bg-slate-950 text-white p-8 sm:p-12 md:p-16 flex flex-col justify-between min-h-[360px] md:min-h-screen overflow-hidden">
-        {/* Clear & Visible Dish Photo */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-70 scale-105 transition-transform duration-700"
           style={{
@@ -63,7 +72,6 @@ export default function SignUpPage() {
               'url("https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80")',
           }}
         />
-        {/* Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-[#EB3223]/40" />
 
         {/* Top Logo */}
@@ -109,6 +117,17 @@ export default function SignUpPage() {
             Start your Foodwok journey today.
           </p>
         </div>
+
+        {/* Notice Banner if unregistered email redirected */}
+        {noticeParam === 'not_registered' && (
+          <div className="bg-amber-50 border border-amber-200 text-amber-900 p-4 rounded-2xl flex items-start gap-3 text-xs font-bold animate-fade-in">
+            <Info className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="block text-sm font-extrabold text-amber-950">No Account Found</strong>
+              We couldn&apos;t find an account registered under <span className="underline">{email}</span>. Create your account below to get started!
+            </div>
+          </div>
+        )}
 
         {errorMessage && (
           <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl flex items-start gap-3 text-xs font-bold animate-fade-in">
@@ -230,5 +249,13 @@ export default function SignUpPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-slate-500">Loading signup...</div>}>
+      <SignUpContent />
+    </Suspense>
   );
 }
