@@ -87,4 +87,6 @@ export interface UserProfile {
   phone: string;
   role: UserRole;
   addresses: SavedAddress[];
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
 }

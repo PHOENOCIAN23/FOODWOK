@@ -3,29 +3,52 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, MailCheck, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
 export default function SignUpPage() {
   const router = useRouter();
   const { signup } = useAuth();
 
-  const [firstName, setFirstName] = useState('Chidi');
-  const [lastName, setLastName] = useState('Okeke');
-  const [email, setEmail] = useState('chidi@example.com');
-  const [phone, setPhone] = useState('+234 800 000 0000');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    signup({
-      firstName,
-      lastName,
-      email,
-      phone,
-    });
-    // Redirect first-time sign ups directly to Profile page to add delivery address first
-    router.push('/profile?firstTime=true&notice=welcome_add_address');
+    setErrorMessage('');
+    setSuccessMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await signup({
+        firstName,
+        lastName,
+        email,
+        phone,
+        password,
+      });
+
+      setSuccessMessage(
+        `Account created successfully! A verification email link has been sent to ${email}. Check your inbox to verify your account.`
+      );
+
+      // Redirect after brief delay
+      setTimeout(() => {
+        router.push('/profile?firstTime=true&notice=welcome_add_address');
+      }, 2500);
+    } catch (err: any) {
+      console.error('Sign up error:', err);
+      setErrorMessage(err.message || 'Failed to create account. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -75,7 +98,7 @@ export default function SignUpPage() {
           className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-900 font-semibold text-xs transition-colors self-start"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back</span>
+          <span>Back to Sign In</span>
         </Link>
 
         <div className="space-y-1">
@@ -86,6 +109,23 @@ export default function SignUpPage() {
             Start your Foodwok journey today.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl flex items-start gap-3 text-xs font-bold animate-fade-in">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {successMessage && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-2xl flex items-start gap-3 text-xs font-bold animate-fade-in">
+            <MailCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+            <div>
+              <strong className="block text-sm font-extrabold text-emerald-900">Email Verification Sent!</strong>
+              {successMessage}
+            </div>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Row 1: First & Last Name */}
@@ -135,7 +175,7 @@ export default function SignUpPage() {
 
           <div className="space-y-1.5">
             <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-              PHONE NUMBER
+              PHONE NUMBER (NIGERIA)
             </label>
             <input
               type="tel"
@@ -164,9 +204,10 @@ export default function SignUpPage() {
           {/* Warm Red CTA Button */}
           <button
             type="submit"
-            className="w-full bg-[#EB3223] hover:bg-[#d62819] text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center mt-2 cursor-pointer"
+            disabled={isSubmitting}
+            className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center mt-2 cursor-pointer"
           >
-            Create my account
+            {isSubmitting ? 'Creating account...' : 'Create my account'}
           </button>
 
           <p className="text-[11px] text-slate-400 text-center font-medium leading-relaxed">

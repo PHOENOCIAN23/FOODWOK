@@ -2,30 +2,46 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, SavedAddress, UserRole } from '@/types/foodwok';
+import { auth, db, googleProvider } from '@/lib/firebase';
+import {
+  onAuthStateChanged,
+  signInWithEmailAndPassword as firebaseSignInWithEmail,
+  createUserWithEmailAndPassword as firebaseCreateUserWithEmail,
+  sendEmailVerification as firebaseSendEmailVerification,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  User as FirebaseUser,
+} from 'firebase/auth';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 
 interface AuthContextType {
   user: UserProfile | null;
+  firebaseUser: FirebaseUser | null;
   isAuthenticated: boolean;
-  login: (email: string) => void;
-  signup: (userData: Partial<UserProfile>) => void;
-  logout: () => void;
-  updateProfile: (updatedData: Partial<UserProfile>) => void;
-  addAddress: (newAddr: Omit<SavedAddress, 'id'>) => SavedAddress;
-  removeAddress: (addressId: string) => void;
-  setDefaultAddress: (addressId: string) => void;
+  login: (email: string, password?: string) => Promise<void>;
+  signup: (userData: Partial<UserProfile> & { password?: string }) => Promise<void>;
+  googleLogin: () => Promise<void>;
+  sendEmailVerificationLink: () => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (updatedData: Partial<UserProfile>) => Promise<void>;
+  addAddress: (newAddr: Omit<SavedAddress, 'id'>) => Promise<SavedAddress>;
+  removeAddress: (addressId: string) => Promise<void>;
+  setDefaultAddress: (addressId: string) => Promise<void>;
   isAuthModalOpen: boolean;
   authModalMode: 'signin' | 'signup';
   openAuthModal: (mode?: 'signin' | 'signup') => void;
   closeAuthModal: () => void;
 }
 
-const DEFAULT_USER: UserProfile = {
+const DEFAULT_DEMO_USER: UserProfile = {
   id: 'usr-chidi-001',
   firstName: 'Chidi',
   lastName: 'Okeke',
   email: 'chidi@example.com',
   phone: '+234 800 000 0000',
   role: 'ADMIN',
+  emailVerified: true,
+  phoneVerified: true,
   addresses: [
     {
       id: 'addr-001',
@@ -37,88 +53,221 @@ const DEFAULT_USER: UserProfile = {
   ],
 };
 
+const syncUserToSupabase = async (profile: UserProfile) => {
+  try {
+    await fetch('/api/users/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profile),
+    });
+  } catch (err) {
+    console.warn('Supabase profile sync call failed silently:', err);
+  }
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    const saved = localStorage.getItem('foodwok_user');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed && typeof parsed === 'object') {
-          const currentAddresses: SavedAddress[] = Array.isArray(parsed.addresses)
-            ? parsed.addresses
-            : parsed.defaultAddress
-            ? [
-                {
-                  id: 'addr-legacy',
-                  label: 'Home',
-                  address: parsed.defaultAddress,
-                  landmark: parsed.landmark || '',
-                  isDefault: true,
-                },
-              ]
-            : [];
-          setUser({
-            ...parsed,
-            role: parsed.role || 'ADMIN',
-            addresses: currentAddresses,
-          });
+    
+    // Listen for Firebase Auth changes
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      setFirebaseUser(fbUser);
+      if (fbUser) {
+        try {
+          const userDocRef = doc(db, 'users', fbUser.uid);
+          const docSnap = await getDoc(userDocRef);
+          
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            const loadedProfile: UserProfile = {
+              id: fbUser.uid,
+              firstName: data.firstName || fbUser.displayName?.split(' ')[0] || 'Customer',
+              lastName: data.lastName || fbUser.displayName?.split(' ').slice(1).join(' ') || '',
+              email: fbUser.email || data.email || '',
+              phone: data.phone || fbUser.phoneNumber || '',
+              role: (data.role as UserRole) || 'CUSTOMER',
+              addresses: data.addresses || [],
+              emailVerified: fbUser.emailVerified,
+              phoneVerified: !!fbUser.phoneNumber,
+            };
+            setUser(loadedProfile);
+            syncUserToSupabase(loadedProfile);
+          } else {
+            // Initial Firestore User Profile creation
+            const newProfile: UserProfile = {
+              id: fbUser.uid,
+              firstName: fbUser.displayName?.split(' ')[0] || 'Customer',
+              lastName: fbUser.displayName?.split(' ').slice(1).join(' ') || '',
+              email: fbUser.email || '',
+              phone: fbUser.phoneNumber || '',
+              role: 'CUSTOMER',
+              addresses: [],
+              emailVerified: fbUser.emailVerified,
+              phoneVerified: !!fbUser.phoneNumber,
+            };
+            await setDoc(userDocRef, newProfile);
+            setUser(newProfile);
+            syncUserToSupabase(newProfile);
+          }
+        } catch {
+          // Fallback to local memory session if Firestore offline/unconfigured
+          const fallbackProfile: UserProfile = {
+            id: fbUser.uid,
+            firstName: fbUser.displayName?.split(' ')[0] || 'Customer',
+            lastName: fbUser.displayName?.split(' ').slice(1).join(' ') || '',
+            email: fbUser.email || '',
+            phone: '',
+            role: 'CUSTOMER',
+            addresses: [],
+            emailVerified: fbUser.emailVerified,
+          };
+          setUser(fallbackProfile);
+          syncUserToSupabase(fallbackProfile);
         }
-      } catch {
-        // Fallback
+      } else {
+        // Fallback check from localStorage if offline demo mode
+        const saved = localStorage.getItem('foodwok_user');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setUser(parsed);
+          } catch {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
       }
-    }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
     if (isMounted) {
       if (user) {
-        localStorage.setItem('foodwok_user', JSON.stringify(user));
+        try {
+          localStorage.setItem('foodwok_user', JSON.stringify(user));
+        } catch {}
       } else {
-        localStorage.removeItem('foodwok_user');
+        try {
+          localStorage.removeItem('foodwok_user');
+        } catch {}
       }
     }
   }, [user, isMounted]);
 
-  const login = (email: string) => {
-    setUser({
-      ...DEFAULT_USER,
-      email,
-    });
+  const login = async (email: string, password?: string) => {
+    if (password) {
+      const credential = await firebaseSignInWithEmail(auth, email, password);
+      setFirebaseUser(credential.user);
+      const loadedProfile: UserProfile = {
+        id: credential.user.uid,
+        firstName: credential.user.displayName?.split(' ')[0] || 'Customer',
+        lastName: credential.user.displayName?.split(' ').slice(1).join(' ') || '',
+        email: credential.user.email || email,
+        phone: credential.user.phoneNumber || '',
+        role: 'CUSTOMER',
+        addresses: [],
+        emailVerified: credential.user.emailVerified,
+      };
+      setUser(loadedProfile);
+      syncUserToSupabase(loadedProfile);
+    } else {
+      const demoUser = { ...DEFAULT_DEMO_USER, email };
+      setUser(demoUser);
+      syncUserToSupabase(demoUser);
+    }
     setIsAuthModalOpen(false);
   };
 
-  const signup = (userData: Partial<UserProfile>) => {
-    // New signups start with empty addresses list per user requirements!
-    const newUser: UserProfile = {
-      id: `usr-${Date.now()}`,
-      firstName: userData.firstName || 'Chidi',
-      lastName: userData.lastName || 'Okeke',
-      email: userData.email || 'chidi@example.com',
-      phone: userData.phone || '+234 800 000 0000',
-      role: userData.role || 'CUSTOMER',
-      addresses: [],
-    };
-    setUser(newUser);
+  const signup = async (userData: Partial<UserProfile> & { password?: string }) => {
+    let newProfile: UserProfile;
+    if (userData.email && userData.password) {
+      const credential = await firebaseCreateUserWithEmail(auth, userData.email, userData.password);
+      
+      // Trigger email verification
+      try {
+        await firebaseSendEmailVerification(credential.user);
+      } catch (e) {
+        console.warn('Could not send email verification link:', e);
+      }
+
+      newProfile = {
+        id: credential.user.uid,
+        firstName: userData.firstName || 'Customer',
+        lastName: userData.lastName || '',
+        email: userData.email,
+        phone: userData.phone || '',
+        role: userData.role || 'CUSTOMER',
+        addresses: [],
+        emailVerified: credential.user.emailVerified,
+        phoneVerified: !!userData.phone,
+      };
+
+      try {
+        await setDoc(doc(db, 'users', credential.user.uid), newProfile);
+      } catch {}
+    } else {
+      newProfile = {
+        id: `usr-${Date.now()}`,
+        firstName: userData.firstName || 'Chidi',
+        lastName: userData.lastName || 'Okeke',
+        email: userData.email || 'chidi@example.com',
+        phone: userData.phone || '+234 800 000 0000',
+        role: userData.role || 'CUSTOMER',
+        addresses: [],
+        emailVerified: false,
+        phoneVerified: false,
+      };
+    }
+    setUser(newProfile);
+    syncUserToSupabase(newProfile);
     setIsAuthModalOpen(false);
   };
 
-  const logout = () => {
+  const googleLogin = async () => {
+    const result = await signInWithPopup(auth, googleProvider);
+    setFirebaseUser(result.user);
+    setIsAuthModalOpen(false);
+  };
+
+  const sendEmailVerificationLink = async () => {
+    if (auth.currentUser) {
+      await firebaseSendEmailVerification(auth.currentUser);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch {}
     setUser(null);
+    try {
+      localStorage.removeItem('foodwok_user');
+    } catch {}
   };
 
-  const updateProfile = (updatedData: Partial<UserProfile>) => {
-    setUser((prev) => (prev ? { ...prev, ...updatedData } : null));
+  const updateProfile = async (updatedData: Partial<UserProfile>) => {
+    setUser((prev) => {
+      if (!prev) return null;
+      const next = { ...prev, ...updatedData };
+      if (firebaseUser) {
+        updateDoc(doc(db, 'users', firebaseUser.uid), updatedData).catch(() => {});
+      }
+      return next;
+    });
   };
 
-  const addAddress = (newAddr: Omit<SavedAddress, 'id'>): SavedAddress => {
+  const addAddress = async (newAddr: Omit<SavedAddress, 'id'>): Promise<SavedAddress> => {
     const created: SavedAddress = {
       ...newAddr,
       id: `addr-${Date.now()}`,
@@ -131,17 +280,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const updatedAddresses = existingAddresses.map((a) =>
         created.isDefault ? { ...a, isDefault: false } : a
       );
+      const nextAddresses = [...updatedAddresses, { ...created, isDefault: !hasAddresses || created.isDefault }];
+      
+      if (firebaseUser) {
+        updateDoc(doc(db, 'users', firebaseUser.uid), { addresses: nextAddresses }).catch(() => {});
+      }
 
       return {
         ...prev,
-        addresses: [...updatedAddresses, { ...created, isDefault: !hasAddresses || created.isDefault }],
+        addresses: nextAddresses,
       };
     });
 
     return created;
   };
 
-  const removeAddress = (addressId: string) => {
+  const removeAddress = async (addressId: string) => {
     setUser((prev) => {
       if (!prev) return null;
       const existingAddresses = Array.isArray(prev.addresses) ? prev.addresses : [];
@@ -149,20 +303,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (filtered.length > 0 && !filtered.some((a) => a.isDefault)) {
         filtered[0].isDefault = true;
       }
+
+      if (firebaseUser) {
+        updateDoc(doc(db, 'users', firebaseUser.uid), { addresses: filtered }).catch(() => {});
+      }
+
       return { ...prev, addresses: filtered };
     });
   };
 
-  const setDefaultAddress = (addressId: string) => {
+  const setDefaultAddress = async (addressId: string) => {
     setUser((prev) => {
       if (!prev) return null;
       const existingAddresses = Array.isArray(prev.addresses) ? prev.addresses : [];
+      const updated = existingAddresses.map((a) => ({
+        ...a,
+        isDefault: a.id === addressId,
+      }));
+
+      if (firebaseUser) {
+        updateDoc(doc(db, 'users', firebaseUser.uid), { addresses: updated }).catch(() => {});
+      }
+
       return {
         ...prev,
-        addresses: existingAddresses.map((a) => ({
-          ...a,
-          isDefault: a.id === addressId,
-        })),
+        addresses: updated,
       };
     });
   };
@@ -180,9 +345,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
+        firebaseUser,
         isAuthenticated: !!user,
         login,
         signup,
+        googleLogin,
+        sendEmailVerificationLink,
         logout,
         updateProfile,
         addAddress,

@@ -4,24 +4,47 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { ShieldCheck, MailCheck, AlertCircle } from 'lucide-react';
 
 export default function SignInPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    login(email || 'chidi@example.com');
-    router.push('/');
+    setErrorMessage('');
+    setIsSubmitting(true);
+
+    try {
+      await login(email, password);
+      router.push('/');
+    } catch (err: any) {
+      console.error('Sign in error:', err);
+      setErrorMessage(err.message || 'Failed to sign in. Please check your credentials.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setErrorMessage('');
+    try {
+      await googleLogin();
+      router.push('/');
+    } catch (err: any) {
+      console.error('Google sign in error:', err);
+      setErrorMessage(err.message || 'Google sign in failed.');
+    }
   };
 
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2">
-      {/* Left Side: Rich Hero Banner with clear, vibrant dish photo */}
+      {/* Left Side: Rich Hero Banner */}
       <div className="relative bg-slate-950 text-white p-8 sm:p-12 md:p-16 flex flex-col justify-between min-h-[400px] md:min-h-screen overflow-hidden">
-        {/* Clear & Visible Dish Background Photo */}
         <div
           className="absolute inset-0 bg-cover bg-center opacity-70 scale-105 transition-transform duration-700"
           style={{
@@ -29,7 +52,6 @@ export default function SignInPage() {
               'url("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80")',
           }}
         />
-        {/* Elegant Gradient Overlay to keep text perfectly legible while making dish image pop */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-[#EB3223]/40" />
 
         {/* Top Brand Logo */}
@@ -51,7 +73,6 @@ export default function SignInPage() {
             Party jollof, smoky fried rice, and rich spaghetti — hot and delivered to your door.
           </p>
 
-          {/* Pill Tags */}
           <div className="flex flex-wrap items-center gap-2 pt-2">
             {['Jollof Rice', 'Fried Rice', 'Spaghetti', 'Specials', 'Shawarma'].map((tag) => (
               <span
@@ -64,7 +85,6 @@ export default function SignInPage() {
           </div>
         </div>
 
-        {/* Footer Copyright Notice */}
         <div className="relative z-10 text-xs font-semibold text-slate-300">
           © {new Date().getFullYear()} Foodwok Cuisine. All rights reserved.
         </div>
@@ -77,9 +97,16 @@ export default function SignInPage() {
             Welcome back
           </h2>
           <p className="text-slate-500 text-sm font-medium">
-            Your favourite meals are waiting.
+            Your favourite meals are waiting. Sign in to your account.
           </p>
         </div>
+
+        {errorMessage && (
+          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-2xl flex items-start gap-3 text-xs font-bold animate-fade-in">
+            <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
@@ -118,9 +145,10 @@ export default function SignInPage() {
           {/* Warm Red CTA Button */}
           <button
             type="submit"
-            className="w-full bg-[#EB3223] hover:bg-[#d62819] text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center"
+            disabled={isSubmitting}
+            className="w-full bg-[#EB3223] hover:bg-[#d62819] disabled:bg-slate-300 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-red-500/25 transition-all text-center cursor-pointer"
           >
-            Sign in to Foodwok
+            {isSubmitting ? 'Authenticating...' : 'Sign in to Foodwok'}
           </button>
         </form>
 
@@ -134,8 +162,8 @@ export default function SignInPage() {
         {/* Google OAuth Button */}
         <button
           type="button"
-          onClick={() => handleSubmit({ preventDefault: () => {} } as any)}
-          className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+          onClick={handleGoogleSignIn}
+          className="w-full bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24">
             <path

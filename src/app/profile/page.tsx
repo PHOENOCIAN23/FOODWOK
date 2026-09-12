@@ -14,12 +14,13 @@ function ProfileContent() {
   const noticeParam = searchParams.get('notice');
   const isFirstTime = searchParams.get('firstTime') === 'true';
 
-  const { user, updateProfile, addAddress, removeAddress, setDefaultAddress, logout } = useAuth();
+  const { user, updateProfile, addAddress, removeAddress, setDefaultAddress, logout, sendEmailVerificationLink } = useAuth();
 
   const [firstName, setFirstName] = useState(user?.firstName || 'Chidi');
   const [lastName, setLastName] = useState(user?.lastName || 'Okeke');
   const [email, setEmail] = useState(user?.email || 'chidi@example.com');
   const [phone, setPhone] = useState(user?.phone || '+234 800 000 0000');
+  const [verificationSent, setVerificationSent] = useState(false);
 
   // Add Address Form State (Auto-opened for first-timers or address prompt)
   const [showAddAddressForm, setShowAddAddressForm] = useState(
@@ -51,6 +52,16 @@ function ProfileContent() {
     });
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3000);
+  };
+
+  const handleSendVerification = async () => {
+    try {
+      await sendEmailVerificationLink();
+      setVerificationSent(true);
+      setTimeout(() => setVerificationSent(false), 5000);
+    } catch (e: any) {
+      alert('Notice: Could not send verification link. ' + (e.message || 'Please check email address.'));
+    }
   };
 
   const handleAddAddressSubmit = (e: React.FormEvent) => {
@@ -92,6 +103,14 @@ function ProfileContent() {
         <ChevronLeft className="w-4 h-4" />
         <span>Back to Menu</span>
       </Link>
+
+      {/* Verification Link Sent Banner */}
+      {verificationSent && (
+        <div className="bg-emerald-50 border border-emerald-200 rounded-3xl p-4 flex items-center gap-3 text-emerald-900 text-xs font-bold animate-fade-in">
+          <Check className="w-5 h-5 text-emerald-600 shrink-0" />
+          <span>Verification email sent! Check your inbox for the link.</span>
+        </div>
+      )}
 
       {/* First Time Welcome Banner */}
       {(isFirstTime || noticeParam === 'welcome_add_address') && (
@@ -138,16 +157,44 @@ function ProfileContent() {
 
       {/* Profile Info Card */}
       <div className="bg-white rounded-3xl border border-slate-100 p-6 sm:p-10 shadow-xs space-y-8">
-        {/* User Header */}
-        <div className="flex items-center gap-4 border-b border-slate-100 pb-6">
-          <div className="w-16 h-16 rounded-full bg-[#EB3223] text-white font-black text-2xl flex items-center justify-center shadow-md">
-            {firstName ? firstName.charAt(0).toUpperCase() : 'C'}
+        {/* User Header with Verification Status Badges */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-6 flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-[#EB3223] text-white font-black text-2xl flex items-center justify-center shadow-md">
+              {firstName ? firstName.charAt(0).toUpperCase() : 'C'}
+            </div>
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-900">
+                {firstName} {lastName}
+              </h2>
+              <p className="text-slate-500 text-sm font-medium">{email}</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-900">
-              {firstName} {lastName}
-            </h2>
-            <p className="text-slate-500 text-sm font-medium">{email}</p>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {user?.emailVerified ? (
+              <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5" /> Email Verified
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSendVerification}
+                className="bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5 cursor-pointer transition-colors"
+              >
+                <span>Verify Email</span>
+              </button>
+            )}
+
+            {user?.phoneVerified ? (
+              <span className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-extrabold px-3 py-1.5 rounded-xl flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5" /> Phone Verified
+              </span>
+            ) : (
+              <span className="bg-slate-100 border border-slate-200 text-slate-700 text-xs font-extrabold px-3 py-1.5 rounded-xl">
+                SMS Unverified
+              </span>
+            )}
           </div>
         </div>
 
