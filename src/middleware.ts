@@ -15,10 +15,10 @@ export function middleware(request: NextRequest) {
       return NextResponse.next();
     }
 
-    // Return 403 Forbidden or redirect unauthorized users to login/home
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('notice', 'forbidden_admin');
-    return NextResponse.redirect(loginUrl);
+    // Redirect unauthorized users to dedicated hidden staff login portal
+    const staffLoginUrl = new URL('/staff-login', request.url);
+    staffLoginUrl.searchParams.set('notice', 'forbidden_admin');
+    return NextResponse.redirect(staffLoginUrl);
   }
 
   return NextResponse.next();

@@ -17,7 +17,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     logout();
     // Clear middleware role cookie
     document.cookie = 'foodwok_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/login?notice=logged_out');
+    router.push('/staff-login?notice=logged_out');
   };
 
   // Role guard check - restricts admin portal to authenticated staff/admin users
@@ -36,10 +36,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <div className="space-y-3 pt-2">
             <Link
-              href="/login"
+              href="/staff-login"
               className="block w-full bg-[#EB3223] text-white font-bold py-3.5 rounded-2xl shadow-md hover:bg-[#d62819] transition-all text-sm"
             >
-              Sign In as Staff / Admin
+              Sign In to Staff Terminal
             </Link>
             <Link
               href="/"
