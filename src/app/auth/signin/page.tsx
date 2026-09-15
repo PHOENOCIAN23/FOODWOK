@@ -47,7 +47,7 @@ export default function SignInPage() {
           if (data && !data.exists) {
             isUnregistered = true;
           }
-        } catch {}
+        } catch { }
       }
 
       if (isUnregistered) {
@@ -68,7 +68,7 @@ export default function SignInPage() {
 
     setIsSubmitting(true);
     try {
-      const result = await phoneLoginSendOTP(phone, 'recaptcha-signin-container');
+      const result = await phoneLoginSendOTP(phone);
       setConfirmationObj(result);
       setOtpSent(true);
     } catch (err: any) {
@@ -100,7 +100,7 @@ export default function SignInPage() {
     setErrorMessage('');
     try {
       await googleLogin();
-      
+
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setErrorMessage(err.message || 'Google sign in failed.');
@@ -182,11 +182,10 @@ export default function SignInPage() {
               setAuthMethod('EMAIL');
               setErrorMessage('');
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              authMethod === 'EMAIL'
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${authMethod === 'EMAIL'
                 ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-            }`}
+              }`}
           >
             <Mail className="w-4 h-4" />
             <span>Email</span>
@@ -198,18 +197,16 @@ export default function SignInPage() {
               setAuthMethod('PHONE');
               setErrorMessage('');
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              authMethod === 'PHONE'
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${authMethod === 'PHONE'
                 ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-            }`}
+              }`}
           >
             <Phone className="w-4 h-4" />
             <span>Phone SMS</span>
           </button>
         </div>
 
-        <div id="recaptcha-signin-container"></div>
 
         {/* Email Sign In */}
         {authMethod === 'EMAIL' && (

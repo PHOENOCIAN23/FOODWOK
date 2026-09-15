@@ -47,7 +47,7 @@ function LoginContent() {
           if (data && !data.exists) {
             isUnregistered = true;
           }
-        } catch {}
+        } catch { }
       }
 
       if (isUnregistered) {
@@ -68,7 +68,7 @@ function LoginContent() {
 
     setIsSubmitting(true);
     try {
-      const result = await phoneLoginSendOTP(phone, 'recaptcha-container');
+      const result = await phoneLoginSendOTP(phone);
       setConfirmationObj(result);
       setOtpSent(true);
     } catch (err: any) {
@@ -172,11 +172,10 @@ function LoginContent() {
               setAuthMethod('EMAIL');
               setErrorMessage('');
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              authMethod === 'EMAIL'
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${authMethod === 'EMAIL'
                 ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-            }`}
+              }`}
           >
             <Mail className="w-4 h-4" />
             <span>Email</span>
@@ -188,19 +187,16 @@ function LoginContent() {
               setAuthMethod('PHONE');
               setErrorMessage('');
             }}
-            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-              authMethod === 'PHONE'
+            className={`py-2.5 px-3 rounded-xl text-xs font-extrabold transition-all flex items-center justify-center gap-2 cursor-pointer ${authMethod === 'PHONE'
                 ? 'bg-[#EB3223] text-white shadow-md shadow-red-500/20'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'
-            }`}
+              }`}
           >
             <Phone className="w-4 h-4" />
             <span>Phone SMS</span>
           </button>
         </div>
 
-        {/* Recaptcha Container for Firebase Phone Auth */}
-        <div id="recaptcha-container"></div>
 
         {/* Form 1: Email Sign In */}
         {authMethod === 'EMAIL' && (

@@ -26,7 +26,7 @@ function StaffLoginContent() {
     setIsSubmitting(true);
 
     try {
-      await login(email || 'admin@foodwok.ng', password || undefined);
+      await login(email || 'admin@foodwok.ng', password);
       updateProfile({ role: selectedStaffRole });
       document.cookie = `foodwok_role=${selectedStaffRole}; path=/`;
       router.push('/admin/kds');
