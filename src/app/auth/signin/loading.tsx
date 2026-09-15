@@ -9,6 +9,7 @@ export default function SigninLoading() {
         <ShimmerPulse className="h-12 w-full rounded-2xl" />
         <ShimmerPulse className="h-12 w-full rounded-2xl" />
         <ShimmerPulse className="h-14 w-full rounded-2xl" />
+        <h1>.</h1>
       </div>
     </div>
   );
