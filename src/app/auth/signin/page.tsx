@@ -100,7 +100,7 @@ export default function SignInPage() {
     setErrorMessage('');
     try {
       await googleLogin();
-      router.push('/');
+      
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setErrorMessage(err.message || 'Google sign in failed.');

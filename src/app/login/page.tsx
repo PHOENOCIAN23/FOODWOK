@@ -31,7 +31,7 @@ function LoginContent() {
     setIsSubmitting(true);
 
     try {
-      await login(email, password || undefined);
+      await login(email, password);
       router.push('/');
     } catch (err: any) {
       console.error('Login error:', err);
@@ -100,7 +100,6 @@ function LoginContent() {
     setErrorMessage('');
     try {
       await googleLogin();
-      router.push('/');
     } catch (err: any) {
       console.error('Google sign in error:', err);
       setErrorMessage(err.message || 'Google sign in failed.');
