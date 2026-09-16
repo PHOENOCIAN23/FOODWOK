@@ -126,7 +126,14 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (savedItemsRaw) {
       try {
         const parsedItems: MenuItem[] = JSON.parse(savedItemsRaw);
-        const mergedItems = [...parsedItems];
+        // Exclude coleslaw & plantain (now strictly add-ons) and synchronize tailored add-ons
+        const mergedItems = parsedItems
+          .filter((i) => i.id !== 'coleslaw' && i.id !== 'plantain')
+          .map((item) => {
+            const defItem = defaultMenuItems.find((d) => d.id === item.id);
+            return defItem ? { ...item, addOns: defItem.addOns } : item;
+          });
+
         for (const defItem of defaultMenuItems) {
           if (!mergedItems.some((i) => i.id === defItem.id)) {
             mergedItems.push(defItem);

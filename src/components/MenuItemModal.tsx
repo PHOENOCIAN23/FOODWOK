@@ -72,49 +72,67 @@ export const MenuItemModal: React.FC<MenuItemModalProps> = ({ item, onClose }) =
             </div>
 
             {/* Add Extras Section */}
-            {item.addOns && item.addOns.length > 0 && (
-              <div className="space-y-3 pt-2">
-                <h3 className="text-base font-extrabold text-slate-900">
-                  Add Extras
-                </h3>
+            {item.addOns && item.addOns.length > 0 && (() => {
+              const foodAddOns = item.addOns.filter((a) => a.categoryType === 'FOOD' || !a.categoryType);
+              const drinkAddOns = item.addOns.filter((a) => a.categoryType === 'DRINK');
 
-                <div className="space-y-2.5">
-                  {item.addOns.map((addOn) => {
-                    const isChecked = selectedAddOns.some((a) => a.id === addOn.id);
-                    return (
-                      <div
-                        key={addOn.id}
-                        onClick={() => toggleAddOn(addOn)}
-                        className={`group border rounded-2xl p-3.5 flex items-center justify-between cursor-pointer transition-all duration-200 ${
-                          isChecked
-                            ? 'bg-red-50/40 border-[#EB3223] shadow-xs'
-                            : 'bg-slate-50/70 border-slate-200/80 hover:bg-slate-100/80'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
+              const renderExtrasGroup = (list: AddOnOption[], title: string, icon: string) => {
+                if (list.length === 0) return null;
+                return (
+                  <div className="space-y-2.5">
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                      <span>{icon}</span>
+                      <span>{title}</span>
+                    </h4>
+                    <div className="space-y-2">
+                      {list.map((addOn) => {
+                        const isChecked = selectedAddOns.some((a) => a.id === addOn.id);
+                        return (
                           <div
-                            className={`w-5 h-5 rounded-md flex items-center justify-center border transition-all ${
+                            key={addOn.id}
+                            onClick={() => toggleAddOn(addOn)}
+                            className={`group border rounded-2xl p-3 flex items-center justify-between cursor-pointer transition-all duration-200 ${
                               isChecked
-                                ? 'bg-[#EB3223] border-[#EB3223] text-white'
-                                : 'border-slate-300 bg-white group-hover:border-slate-400'
+                                ? 'bg-red-50/40 border-[#EB3223] shadow-xs'
+                                : 'bg-slate-50/70 border-slate-200/80 hover:bg-slate-100/80'
                             }`}
                           >
-                            {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                          </div>
-                          <span className="text-slate-800 text-sm font-semibold">
-                            {addOn.name}
-                          </span>
-                        </div>
+                            <div className="flex items-center gap-3 min-w-0 pr-2">
+                              <div
+                                className={`w-4.5 h-4.5 rounded-md flex items-center justify-center border transition-all shrink-0 ${
+                                  isChecked
+                                    ? 'bg-[#EB3223] border-[#EB3223] text-white'
+                                    : 'border-slate-300 bg-white group-hover:border-slate-400'
+                                }`}
+                              >
+                                {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                              </div>
+                              <span className="text-slate-800 text-xs sm:text-sm font-semibold truncate">
+                                {addOn.name}
+                              </span>
+                            </div>
 
-                        <span className="text-[#EB3223] text-sm font-bold">
-                          +{formatNairaFromKobo(addOn.priceInKobo)}
-                        </span>
-                      </div>
-                    );
-                  })}
+                            <span className="text-[#EB3223] text-xs sm:text-sm font-bold shrink-0">
+                              +{formatNairaFromKobo(addOn.priceInKobo)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              };
+
+              return (
+                <div className="space-y-4 pt-2">
+                  <h3 className="text-base font-extrabold text-slate-900">
+                    Add Extras & Customizations
+                  </h3>
+                  {renderExtrasGroup(foodAddOns, 'Food & Sides Extras', '🍲')}
+                  {renderExtrasGroup(drinkAddOns, 'Drinks & Beverages', '🥤')}
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
 
           {/* Quantity Selector & CTA Button */}

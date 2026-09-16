@@ -37,27 +37,24 @@ export default function MenuItemDetailPage({
 
   const isDishAvailable = item.isAvailable !== false;
 
-  // Smart Add-on Filtering: Display Universal Add-ons + Category Specific Add-ons matching dish category
-  const availableDishAddOns = globalAddOns.filter((addOn) => {
-    // 1. Universal add-ons (Drinks, Water, etc.) apply to all dishes
-    if (!addOn.scope || addOn.scope === 'UNIVERSAL') return true;
+  // Smart Add-on Filtering: Use dish-tailored add-ons directly for strict dish compliance, with category fallback
+  const availableDishAddOns = item.addOns && item.addOns.length > 0
+    ? item.addOns
+    : globalAddOns.filter((addOn) => {
+        // Universal drinks apply across all meals
+        if (addOn.categoryType === 'DRINK' || !addOn.scope || addOn.scope === 'UNIVERSAL') return true;
 
-    // 2. Category Specific add-ons check matching category ID
-    if (
-      addOn.scope === 'CATEGORY_SPECIFIC' &&
-      addOn.applicableCategories &&
-      addOn.applicableCategories.includes(item.category)
-    ) {
-      return true;
-    }
+        // Category Specific add-ons check matching category ID
+        if (
+          addOn.scope === 'CATEGORY_SPECIFIC' &&
+          addOn.applicableCategories &&
+          addOn.applicableCategories.includes(item.category)
+        ) {
+          return true;
+        }
 
-    // 3. Explicitly assigned dish add-ons
-    if (item.addOns && item.addOns.some((a) => a.id === addOn.id)) {
-      return true;
-    }
-
-    return false;
-  });
+        return false;
+      });
 
   const toggleAddOn = (addOn: AddOnOption) => {
     if (addOn.isAvailable === false) return; // Prevent selecting out-of-stock add-on

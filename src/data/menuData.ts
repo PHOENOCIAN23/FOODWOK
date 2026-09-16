@@ -1,11 +1,11 @@
 import { MenuItem, AddOnOption } from '@/types/foodwok';
 
-export const standardAddOns: AddOnOption[] = [
-  // Drinks & Beverages Add-ons
+// Universal Drinks & Beverages applicable across all meals
+export const universalDrinks: AddOnOption[] = [
   {
     id: 'water',
     name: 'Bottled Water (50cl)',
-    priceInKobo: 30000,
+    priceInKobo: 30000, // ₦300
     isAvailable: true,
     scope: 'UNIVERSAL',
     categoryType: 'DRINK',
@@ -13,7 +13,7 @@ export const standardAddOns: AddOnOption[] = [
   {
     id: 'malt',
     name: 'Malt Drink (33cl)',
-    priceInKobo: 50000,
+    priceInKobo: 50000, // ₦500
     isAvailable: true,
     scope: 'UNIVERSAL',
     categoryType: 'DRINK',
@@ -21,29 +21,18 @@ export const standardAddOns: AddOnOption[] = [
   {
     id: 'coke',
     name: 'Chilled Soft Drink (50cl)',
-    priceInKobo: 50000,
+    priceInKobo: 50000, // ₦500
     isAvailable: true,
     scope: 'UNIVERSAL',
     categoryType: 'DRINK',
   },
+];
 
-  // Food & Extras Add-ons
-  {
-    id: 'extra-chicken',
-    name: 'Extra Grilled Chicken',
-    priceInKobo: 200000, // ₦2,000
-    isAvailable: true,
-    scope: 'UNIVERSAL',
-    categoryType: 'FOOD',
-  },
-  {
-    id: 'extra-beef',
-    name: 'Extra Beef Portion',
-    priceInKobo: 150000, // ₦1,500
-    isAvailable: true,
-    scope: 'UNIVERSAL',
-    categoryType: 'FOOD',
-  },
+// Master Catalog of Standard Add-ons (used for seeding and category filtering)
+export const standardAddOns: AddOnOption[] = [
+  ...universalDrinks,
+
+  // Universal / Common Food & Sides Extras
   {
     id: 'extra-plantain',
     name: 'Extra Fried Plantain (Dodo)',
@@ -51,30 +40,106 @@ export const standardAddOns: AddOnOption[] = [
     isAvailable: true,
     scope: 'UNIVERSAL',
     categoryType: 'FOOD',
+    applicableCategories: ['your-food', 'the-chill', 'the-grill'],
   },
   {
     id: 'extra-coleslaw',
-    name: 'Extra Coleslaw',
+    name: 'Extra Creamy Coleslaw',
     priceInKobo: 100000, // ₦1,000
     isAvailable: true,
     scope: 'UNIVERSAL',
     categoryType: 'FOOD',
+    applicableCategories: ['your-food', 'the-chill', 'the-grill'],
+  },
+  {
+    id: 'extra-chicken',
+    name: 'Extra Grilled Chicken Quarter',
+    priceInKobo: 200000, // ₦2,000
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food', 'the-chill'],
+  },
+  {
+    id: 'extra-beef',
+    name: 'Extra Tender Peppered Beef',
+    priceInKobo: 150000, // ₦1,500
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food', 'the-chill'],
   },
   {
     id: 'extra-chips',
-    name: 'Extra Golden Chips',
-    priceInKobo: 300000, // ₦3,000
+    name: 'Extra Golden Chips (Fries)',
+    priceInKobo: 150000, // ₦1,500
     isAvailable: true,
-    scope: 'UNIVERSAL',
+    scope: 'CATEGORY_SPECIFIC',
     categoryType: 'FOOD',
+    applicableCategories: ['the-chill', 'the-grill', 'your-food'],
   },
   {
     id: 'extra-cheese',
-    name: 'Extra Cheese',
+    name: 'Extra Melted Cheese',
     priceInKobo: 100000, // ₦1,000
     isAvailable: true,
-    scope: 'UNIVERSAL',
+    scope: 'CATEGORY_SPECIFIC',
     categoryType: 'FOOD',
+    applicableCategories: ['the-chill', 'your-food'],
+  },
+  {
+    id: 'extra-moin-moin',
+    name: 'Extra Steamed Moin-Moin',
+    priceInKobo: 80000, // ₦800
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food', 'the-chill'],
+  },
+  {
+    id: 'extra-turkey',
+    name: 'Extra Grilled Turkey Cutlet',
+    priceInKobo: 250000, // ₦2,500
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['the-grill', 'your-food'],
+  },
+  {
+    id: 'extra-shrimp',
+    name: 'Extra Tiger Shrimp Portion',
+    priceInKobo: 250000, // ₦2,500
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food'],
+  },
+  {
+    id: 'extra-swallow-fufu',
+    name: 'Extra Pounded Fufu Wrap',
+    priceInKobo: 70000, // ₦700
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food'],
+  },
+  {
+    id: 'extra-swallow-semo',
+    name: 'Extra Semolina Wrap',
+    priceInKobo: 70000, // ₦700
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food'],
+  },
+  {
+    id: 'extra-swallow-eba',
+    name: 'Extra Garri Eba Wrap',
+    priceInKobo: 60000, // ₦600
+    isAvailable: true,
+    scope: 'CATEGORY_SPECIFIC',
+    categoryType: 'FOOD',
+    applicableCategories: ['your-food'],
   },
 ];
 
@@ -94,7 +159,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '1,420 orders',
     badge: 'CHEF SPECIAL',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'bp4-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp4-extra-beef', name: 'Extra Diced Beef Portion', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp4-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp4-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp4-extra-moin-moin', name: 'Extra Steamed Moin-Moin', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'chops-platter-for-2',
@@ -108,7 +180,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '2,150 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'cp2-extra-suya', name: 'Extra Beef Suya Portion', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cp2-extra-gizzdodo', name: 'Extra Peppered Gizzdodo', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cp2-extra-puff-puff', name: 'Extra Sweet Puff Puff (6 pcs)', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cp2-extra-samosa', name: 'Extra Crispy Samosas (4 pcs)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cp2-extra-spring-rolls', name: 'Extra Spring Rolls (4 pcs)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'barrell-burger',
@@ -122,7 +201,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '980 orders',
     badge: 'FAVORITE',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'bb-extra-cheese', name: 'Extra Melted Cheddar Cheese', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bb-extra-patty', name: 'Extra Flame-Grilled Beef Patty', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bb-extra-chips', name: 'Side of Golden French Fries', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bb-extra-bacon', name: 'Crispy Bacon Strips', priceInKobo: 120000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bb-extra-sauce', name: 'Signature Barrell House Sauce', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'chicken-and-chips',
@@ -136,7 +222,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '3,410 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'cc-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cc-extra-chips', name: 'Extra Portion Golden Chips', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cc-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cc-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cc-extra-pepper-dip', name: 'Signature Pepper Dip Sauce', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'asun',
@@ -150,7 +243,12 @@ export const menuItems: MenuItem[] = [
     ordersCount: '2,890 orders',
     badge: 'HOT & SPICY',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'asun-extra-meat', name: 'Extra Peppered Roasted Goat Meat', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asun-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asun-extra-peppers', name: 'Extra Sautéed Scotch Bonnet & Onions', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'suya',
@@ -164,7 +262,13 @@ export const menuItems: MenuItem[] = [
     ordersCount: '4,100 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'suya-extra-skewer', name: 'Extra Beef Suya Skewer', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'suya-extra-yaji', name: 'Extra Authentic Yaji Spice Pack', priceInKobo: 30000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'suya-extra-onions', name: 'Fresh Sliced Red Onions & Tomatoes', priceInKobo: 40000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'suya-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'small-chops',
@@ -177,7 +281,13 @@ export const menuItems: MenuItem[] = [
     rating: 4.75,
     ordersCount: '1,890 orders',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'sc-extra-puff-puff', name: 'Extra Puff Puff (4 pcs)', priceInKobo: 60000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sc-extra-samosa', name: 'Extra Spiced Beef Samosas (2 pcs)', priceInKobo: 60000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sc-extra-spring-rolls', name: 'Extra Vegetable Spring Rolls (2 pcs)', priceInKobo: 60000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sc-extra-dip', name: 'House Sweet Pepper Dip', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'pepper-soup',
@@ -191,7 +301,12 @@ export const menuItems: MenuItem[] = [
     ordersCount: '1,650 orders',
     badge: 'HOT & SPICY',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'ps-extra-meat', name: 'Extra Pepper Soup Meat Cutlets', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ps-extra-yam', name: 'Boiled White Yam Slice (in broth)', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ps-extra-scent-leaves', name: 'Extra Scent Leaves & Pepper Infusion', priceInKobo: 40000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
 
   // ==========================================
@@ -209,7 +324,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '1,120 orders',
     badge: 'CHEF SPECIAL',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'gf-extra-chips', name: 'Extra Golden French Fries', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'gf-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'gf-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'gf-extra-sauce', name: 'Smoky Pepper Marinade Sauce', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'gf-extra-lime', name: 'Fresh Lime Wedges & Sliced Onions', priceInKobo: 40000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'turkey-n-chips',
@@ -223,7 +345,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '1,560 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'tnc-extra-turkey', name: 'Extra Grilled Turkey Cutlet', priceInKobo: 250000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'tnc-extra-chips', name: 'Extra Portion Golden Chips', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'tnc-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'tnc-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'tnc-extra-glaze', name: 'House Pepper Glaze', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
 
   // ==========================================
@@ -241,7 +370,15 @@ export const menuItems: MenuItem[] = [
     ordersCount: '5,200 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'jr-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'jr-extra-beef', name: 'Extra Tender Peppered Beef', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'jr-extra-turkey', name: 'Extra Spiced Grilled Turkey', priceInKobo: 250000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'jr-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'jr-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'jr-extra-moin-moin', name: 'Extra Steamed Moin-Moin', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'special-fried-rice',
@@ -255,7 +392,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '3,840 orders',
     badge: 'CHEF SPECIAL',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'sfr-extra-shrimp', name: 'Extra Succulent Tiger Shrimp', priceInKobo: 250000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sfr-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sfr-extra-beef', name: 'Extra Tender Beef Strips', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sfr-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sfr-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'all-star-jollof',
@@ -269,7 +413,15 @@ export const menuItems: MenuItem[] = [
     ordersCount: '2,490 orders',
     badge: 'CHEF SPECIAL',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'asj-extra-gizzard', name: 'Extra Spicy Peppered Gizzard', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asj-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asj-extra-beef', name: 'Extra Tender Diced Beef', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asj-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asj-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'asj-extra-moin-moin', name: 'Extra Steamed Moin-Moin', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'wraps-and-soups',
@@ -283,7 +435,15 @@ export const menuItems: MenuItem[] = [
     ordersCount: '2,100 orders',
     badge: 'TRADITIONAL',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'ws-extra-fufu', name: 'Extra Pounded Fufu Wrap', priceInKobo: 70000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-semo', name: 'Extra Semolina Wrap', priceInKobo: 70000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-eba', name: 'Extra Garri Eba Wrap', priceInKobo: 60000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-stockfish', name: 'Extra Traditional Stockfish', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-beef', name: 'Extra Assorted Beef Cutlets', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-fish', name: 'Extra Fried Fish Cutlet', priceInKobo: 180000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'chicken-sandwich',
@@ -296,7 +456,14 @@ export const menuItems: MenuItem[] = [
     rating: 4.75,
     ordersCount: '1,320 orders',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'cs-extra-cheese', name: 'Extra Melted Cheddar Cheese', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cs-extra-chicken', name: 'Extra Grilled Chicken Breast', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cs-extra-chips', name: 'Side of Crispy French Fries', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cs-extra-coleslaw', name: 'Side of Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'cs-extra-bacon', name: 'Crispy Bacon Strips', priceInKobo: 120000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'wok-spaghetti',
@@ -310,7 +477,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '1,980 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'ws-extra-chicken-strips', name: 'Extra Grilled Chicken Strips', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-beef-strips', name: 'Extra Tender Beef Strips', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ws-extra-peppers', name: 'Extra Sautéed Bell Peppers & Veggies', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'beans-and-plantain',
@@ -323,7 +497,14 @@ export const menuItems: MenuItem[] = [
     rating: 4.7,
     ordersCount: '1,640 orders',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'bp-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp-extra-beef', name: 'Extra Peppered Beef Portion', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp-extra-fish', name: 'Extra Fried / Steamed Fish', priceInKobo: 180000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp-extra-egg', name: 'Boiled Egg', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'bp-extra-garri', name: 'Crispy Drinking Ijebu Garri', priceInKobo: 40000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: '9ja-breakfast',
@@ -337,7 +518,14 @@ export const menuItems: MenuItem[] = [
     ordersCount: '2,300 orders',
     badge: 'FAVORITE',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'nb-extra-egg-sauce', name: 'Extra Nigerian Scrambled Egg Sauce', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'nb-extra-fried-yam', name: 'Extra Crispy Fried Yam Slices', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'nb-extra-boiled-yam', name: 'Extra Tender Boiled Yam Slices', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'nb-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'nb-corned-beef-upgrade', name: 'Corned Beef Egg Sauce Upgrade', priceInKobo: 120000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'full-english',
@@ -350,7 +538,15 @@ export const menuItems: MenuItem[] = [
     rating: 4.9,
     ordersCount: '1,120 orders',
     isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'fe-extra-bacon', name: 'Extra Crispy Bacon Strips (3 pcs)', priceInKobo: 120000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'fe-extra-sausage', name: 'Extra Grilled Beef Sausages (2 pcs)', priceInKobo: 120000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'fe-extra-egg', name: 'Extra Sunny-Side-Up Fried Egg', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'fe-extra-beans', name: 'Extra Heinz Baked Beans Portion', priceInKobo: 60000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'fe-extra-mushrooms', name: 'Extra Sautéed Herb Mushrooms', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'fe-extra-toast', name: 'Extra Buttered Brioche Toast (2 pcs)', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'shawarmas',
@@ -364,20 +560,15 @@ export const menuItems: MenuItem[] = [
     ordersCount: '4,500 orders',
     badge: 'POPULAR',
     isAvailable: true,
-    addOns: standardAddOns,
-  },
-  {
-    id: 'coleslaw',
-    name: 'COLESLAW',
-    category: 'your-food',
-    description: 'Fresh creamy cabbage and carrot coleslaw.',
-    fullDescription: 'Freshly shredded green cabbage, sweet carrots, and sweetcorn tossed in creamy salad dressing.',
-    priceInKobo: 100000, // ₦1,000
-    image: '/images/dishes/coleslaw.jpg',
-    rating: 4.6,
-    ordersCount: '1,100 orders',
-    isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'sw-extra-cheese', name: 'Extra Melted Cheese', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sw-extra-sausage', name: 'Extra Grilled Sausage', priceInKobo: 80000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sw-extra-chicken', name: 'Extra Flame-Marinated Chicken Filling', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sw-extra-beef', name: 'Extra Spiced Beef Filling', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sw-extra-sauce', name: 'Extra Garlic Cream & Chili Dip', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'sw-extra-chips', name: 'Side of Crispy French Fries', priceInKobo: 150000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
   {
     id: 'chips',
@@ -390,19 +581,13 @@ export const menuItems: MenuItem[] = [
     rating: 4.75,
     ordersCount: '2,900 orders',
     isAvailable: true,
-    addOns: standardAddOns,
-  },
-  {
-    id: 'plantain',
-    name: 'PLANTAIN',
-    category: 'your-food',
-    description: 'Sweet fried ripe plantain slices.',
-    fullDescription: 'Golden caramelized sweet fried ripe yellow plantain dodo coins.',
-    priceInKobo: 100000, // ₦1,000
-    image: '/images/dishes/plantain.jpg',
-    rating: 4.85,
-    ordersCount: '3,700 orders',
-    isAvailable: true,
-    addOns: standardAddOns,
+    addOns: [
+      ...universalDrinks,
+      { id: 'ch-extra-chicken', name: 'Extra Grilled Chicken Quarter', priceInKobo: 200000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ch-extra-cheese', name: 'Melted Cheddar Cheese Sauce', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ch-extra-coleslaw', name: 'Extra Creamy Coleslaw', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ch-extra-plantain', name: 'Extra Fried Plantain (Dodo)', priceInKobo: 100000, isAvailable: true, categoryType: 'FOOD' },
+      { id: 'ch-extra-dip', name: 'Spicy Pepper Dipping Sauce', priceInKobo: 50000, isAvailable: true, categoryType: 'FOOD' },
+    ],
   },
 ];
