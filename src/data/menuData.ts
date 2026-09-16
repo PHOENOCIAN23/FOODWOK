@@ -204,7 +204,7 @@ export const menuItems: MenuItem[] = [
     description: 'Smokey grilled Cat or Croaker fish with crispy golden chips',
     fullDescription: 'Fresh whole Catfish or Croaker fish deeply scored and seasoned with rich pepper marinade, slow grilled over charcoal for a rich smoky aroma, served with a side of crispy golden chips and spicy sauce.',
     priceInKobo: 1800000, // ₦18,000
-    image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/grilled-fish-n-chips.jpg',
     rating: 5.0,
     ordersCount: '1,120 orders',
     badge: 'CHEF SPECIAL',
@@ -236,7 +236,7 @@ export const menuItems: MenuItem[] = [
     description: 'Smokey jollof served with beef, Chicken or Turkey.',
     fullDescription: 'Our hallmark Nigerian party jollof rice cooked in rich tomato puree, bell pepper stew, and traditional wood-smoke seasoning. Served hot with your choice of Tender Beef, Spiced Chicken, or Turkey.',
     priceInKobo: 300000, // From ₦3,000
-    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/jollof-rice.jpg',
     rating: 4.9,
     ordersCount: '5,200 orders',
     badge: 'POPULAR',
@@ -305,7 +305,7 @@ export const menuItems: MenuItem[] = [
     description: 'Tender spaghetti wok-tossed with sauce and your choice of protein.',
     fullDescription: 'High-heat stir-fried spaghetti tossed in peppered tomato sauce, sweet bell peppers, spring onions, sesame oil, and your choice of beef or chicken strips.',
     priceInKobo: 400000, // ₦4,000
-    image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/wok-spaghetti.jpg',
     rating: 4.8,
     ordersCount: '1,980 orders',
     badge: 'POPULAR',
@@ -332,7 +332,7 @@ export const menuItems: MenuItem[] = [
     description: 'Boiled/Fried Yam served with a scrambled or fried egg, often seasoned and flavorful.',
     fullDescription: 'Classic Nigerian morning hearty dish featuring hot boiled or crispy fried white yam slices served with a well-seasoned bell pepper & onion egg sauce.',
     priceInKobo: 500000, // ₦5,000
-    image: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/9ja-breakfast.jpg',
     rating: 4.85,
     ordersCount: '2,300 orders',
     badge: 'FAVORITE',
@@ -359,7 +359,7 @@ export const menuItems: MenuItem[] = [
     description: 'Chicken or Beef tendered and wrapped with crisp, fresh and unique sauces.',
     fullDescription: 'Double pita wrap stuffed with flame-marinated chicken or beef, grilled sausage, fresh cabbage, carrots, hot pepper sauce, and creamy garlic mayonnaise.',
     priceInKobo: 300000, // From ₦3,000
-    image: 'https://images.unsplash.com/photo-1561651823-34feb02250e4?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/shawarmas.jpg',
     rating: 4.9,
     ordersCount: '4,500 orders',
     badge: 'POPULAR',
@@ -373,7 +373,7 @@ export const menuItems: MenuItem[] = [
     description: 'Fresh creamy cabbage and carrot coleslaw.',
     fullDescription: 'Freshly shredded green cabbage, sweet carrots, and sweetcorn tossed in creamy salad dressing.',
     priceInKobo: 100000, // ₦1,000
-    image: 'https://images.unsplash.com/photo-1625944228741-cf309834b89f?auto=format&fit=crop&w=1000&q=80',
+    image: '/images/dishes/coleslaw.jpg',
     rating: 4.6,
     ordersCount: '1,100 orders',
     isAvailable: true,

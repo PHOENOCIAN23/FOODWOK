@@ -32,7 +32,7 @@ const INITIAL_DEMO_CART: CartItem[] = [
       category: 'rice',
       description: 'Perfectly seasoned Nigerian party jollof with rich tomato base, smoked paprika, and a charcoal finish.',
       priceInKobo: 350000,
-      image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
+      image: '/images/dishes/jollof-rice.jpg',
       rating: 4.9,
       addOns: [],
     },
