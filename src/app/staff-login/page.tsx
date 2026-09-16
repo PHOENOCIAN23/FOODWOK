@@ -36,49 +36,31 @@ function StaffLoginContent() {
     setIsSubmitting(true);
 
     const targetEmail = (email || '').trim().toLowerCase();
-    const authorizedRole: UserRole = targetEmail === 'kitchen@foodwok.ng' ? 'KITCHEN_STAFF' : 'ADMIN';
-
-    // Authorized staff passwords
-    const STAFF_CREDENTIALS: Record<string, string> = {
-      'admin@foodwok.ng': 'FW#Admin!2026$9xKpZ*8Q',
-      'kitchen@foodwok.ng': 'FW#Kitch!2026*4vLmT$6Y',
-    };
 
     try {
-      let loggedInViaSupabase = false;
+      // Authenticate via dedicated server endpoint which sets authoritative HTTP cookies
+      const res = await fetch('/api/auth/staff-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: targetEmail,
+          password: password.trim(),
+        }),
+      });
 
-      // 1. Attempt Supabase Auth login if database is connected
-      try {
-        await login(targetEmail, password);
-        loggedInViaSupabase = true;
-      } catch (authErr: any) {
-        console.warn('Supabase Auth connection check:', authErr?.message || authErr);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Invalid staff email or passkey. Please check your credentials.');
       }
 
-      // 2. If not authenticated via Supabase, verify against authorized staff credentials
-      if (!loggedInViaSupabase) {
-        const expectedPass = STAFF_CREDENTIALS[targetEmail];
-        if (!expectedPass || password !== expectedPass) {
-          throw new Error('Invalid staff credentials. Please check your email and passcode.');
-        }
+      // Establish authenticated staff profile in client state and localStorage
+      if (data.user) {
+        setStaffSession(data.user);
       }
 
-      // Establish authenticated staff profile and cookie
-      const staffUser = {
-        id: targetEmail === 'kitchen@foodwok.ng' ? 'b2222222-2222-2222-2222-222222222222' : 'a1111111-1111-1111-1111-111111111111',
-        email: targetEmail,
-        firstName: targetEmail === 'kitchen@foodwok.ng' ? 'Kitchen' : 'Foodwok',
-        lastName: targetEmail === 'kitchen@foodwok.ng' ? 'Staff' : 'Administrator',
-        role: authorizedRole,
-        addresses: [],
-        phone: targetEmail === 'kitchen@foodwok.ng' ? '+2348000000002' : '+2348000000001',
-        emailVerified: true,
-        phoneVerified: true,
-      };
-
-      setStaffSession(staffUser);
-      document.cookie = `foodwok_role=${authorizedRole}; path=/; max-age=86400; SameSite=Lax`;
-      router.push('/admin/kds');
+      // Perform a full browser window redirect to guarantee fresh cookies are attached
+      window.location.href = data.redirectTo || '/admin/kds';
     } catch (err: any) {
       console.error('Staff login error:', err);
       setErrorMessage(err.message || 'Failed to sign in. Please verify staff passkey.');

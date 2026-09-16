@@ -87,24 +87,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
       setSupabaseUser(session?.user ?? null);
-      if (session?.user) {
-        await loadProfile(session.user);
-      } else {
-        if (typeof window !== 'undefined') {
-          const cachedStaff = localStorage.getItem('foodwok_staff_user');
-          if (cachedStaff) {
-            try {
-              setUser(JSON.parse(cachedStaff));
-            } catch {
-              setUser(null);
+
+      // Check if an authorized staff session exists in localStorage
+      let hasValidStaffSession = false;
+      if (typeof window !== 'undefined') {
+        const cachedStaff = localStorage.getItem('foodwok_staff_user');
+        if (cachedStaff) {
+          try {
+            const parsedStaff = JSON.parse(cachedStaff);
+            if (parsedStaff && (parsedStaff.role === 'ADMIN' || parsedStaff.role === 'KITCHEN_STAFF')) {
+              setUser(parsedStaff);
+              hasValidStaffSession = true;
             }
-          } else {
-            setUser(null);
+          } catch {
+            // invalid JSON, ignore
           }
+        }
+      }
+
+      if (!hasValidStaffSession) {
+        if (session?.user) {
+          await loadProfile(session.user);
         } else {
           setUser(null);
         }
       }
+
       setIsLoading(false);
     });
 
@@ -120,6 +128,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const login = async (email: string, password: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('foodwok_staff_user');
+    }
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     if (data.user) {
@@ -195,6 +206,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (typeof window !== 'undefined') {
       localStorage.removeItem('foodwok_staff_user');
       document.cookie = 'foodwok_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      fetch('/api/auth/staff-logout', { method: 'POST' }).catch(() => {});
     }
     setUser(null);
     setSupabaseUser(null);

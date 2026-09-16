@@ -31,9 +31,24 @@ interface FlatTransaction {
 }
 
 export default function StandaloneAccountingLedgerPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { orders: liveOrders } = useOrders();
-  const isAdmin = user?.role === 'ADMIN';
+
+  const [localStaffUser, setLocalStaffUser] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('foodwok_staff_user');
+      if (stored) {
+        setLocalStaffUser(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const activeUser = user || localStaffUser;
+  const isAdmin = activeUser?.role === 'ADMIN';
 
   const [ledgerRecords, setLedgerRecords] = useState<DailyAccountingRecord[]>([]);
 
@@ -245,7 +260,16 @@ export default function StandaloneAccountingLedgerPage() {
     .filter((t) => t.dateString.startsWith(currentMonthStr))
     .reduce((sum, t) => sum + (t.order.totalInKobo || 0), 0);
 
-  // Role Guard check for Admin Only
+  // 1. Loading state
+  if (isLoading && !activeUser) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center p-8">
+        <div className="w-8 h-8 border-2 border-slate-900 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // 2. Role Guard check for Admin Only
   if (!isAdmin) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-4">

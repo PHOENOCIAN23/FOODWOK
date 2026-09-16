@@ -33,7 +33,21 @@ export default function KitchenDisplaySystemPage() {
   const { paidKitchenOrders, advanceOrderStatus } = useOrders();
   const { user } = useAuth();
 
-  const isAdmin = user?.role === 'ADMIN';
+  const [localStaffUser, setLocalStaffUser] = useState<any>(null);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('foodwok_staff_user');
+      if (stored) {
+        setLocalStaffUser(JSON.parse(stored));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const activeUser = user || localStaffUser;
+  const isAdmin = activeUser?.role === 'ADMIN';
 
   const [currentTime, setCurrentTime] = useState(Date.now());
   const [isMounted, setIsMounted] = useState(false);

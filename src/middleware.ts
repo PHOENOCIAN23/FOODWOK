@@ -10,6 +10,16 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
   const staffRoleCookie = request.cookies.get('foodwok_role')?.value;
 
+  // 1. Prioritize verified staff session role cookie
+  if (staffRoleCookie === 'ADMIN' || staffRoleCookie === 'KITCHEN_STAFF') {
+    // Accounting ledger is strictly for ADMIN
+    if (request.nextUrl.pathname.startsWith('/admin/accounting') && staffRoleCookie === 'KITCHEN_STAFF') {
+      return NextResponse.redirect(new URL('/admin/kds?notice=accounting_restricted', request.url));
+    }
+    return response;
+  }
+
+  // 2. Secondary check: Supabase Auth SSR session
   const isSupabaseConfigured =
     process.env.NEXT_PUBLIC_SUPABASE_URL &&
     !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref');
@@ -37,30 +47,21 @@ export async function middleware(request: NextRequest) {
           .eq('id', user.id)
           .maybeSingle();
 
-        const role = profile?.role || staffRoleCookie;
+        const role = profile?.role;
         if (role === 'ADMIN' || role === 'KITCHEN_STAFF') {
-          // Accounting ledger is strictly for ADMIN
           if (request.nextUrl.pathname.startsWith('/admin/accounting') && role === 'KITCHEN_STAFF') {
             return NextResponse.redirect(new URL('/admin/kds?notice=accounting_restricted', request.url));
           }
+          response.cookies.set('foodwok_role', role, { path: '/', sameSite: 'lax', maxAge: 86400 });
           return response;
         }
-
-        return NextResponse.redirect(new URL('/staff-login?notice=forbidden_admin', request.url));
       }
     } catch (err) {
-      console.warn('Middleware Supabase authentication error:', err);
+      console.warn('Middleware Supabase authentication check:', err);
     }
   }
 
-  // Fallback to verified staff session cookie
-  if (staffRoleCookie === 'ADMIN' || staffRoleCookie === 'KITCHEN_STAFF') {
-    if (request.nextUrl.pathname.startsWith('/admin/accounting') && staffRoleCookie === 'KITCHEN_STAFF') {
-      return NextResponse.redirect(new URL('/admin/kds?notice=accounting_restricted', request.url));
-    }
-    return response;
-  }
-
+  // If not authenticated as ADMIN or KITCHEN_STAFF, redirect to staff login
   return NextResponse.redirect(new URL('/staff-login?notice=forbidden_admin', request.url));
 }
 

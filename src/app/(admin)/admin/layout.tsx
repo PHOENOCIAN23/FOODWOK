@@ -9,19 +9,56 @@ import { useAuth } from '@/context/AuthContext';
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
 
-  const role = user?.role || 'ADMIN';
+  const [localStaffUser, setLocalStaffUser] = React.useState<any>(null);
+  const [isClient, setIsClient] = React.useState(false);
 
-  const handleAdminLogout = () => {
-    logout();
-    // Clear middleware role cookie
-    document.cookie = 'foodwok_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/staff-login?notice=logged_out');
+  React.useEffect(() => {
+    setIsClient(true);
+    try {
+      const stored = localStorage.getItem('foodwok_staff_user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.role === 'ADMIN' || parsed?.role === 'KITCHEN_STAFF') {
+          setLocalStaffUser(parsed);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const activeUser = user || localStaffUser;
+  const role = activeUser?.role || 'ADMIN';
+
+  const handleAdminLogout = async () => {
+    try {
+      await fetch('/api/auth/staff-logout', { method: 'POST' });
+    } catch (e) {
+      console.warn('Staff logout API error:', e);
+    }
+    await logout();
+    window.location.href = '/staff-login?notice=logged_out';
   };
 
-  // Role guard check - restricts admin portal to authenticated staff/admin users
-  if (!user || role === 'CUSTOMER') {
+  // 1. Show loading indicator while authentication state is resolving
+  if (isLoading && !activeUser) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-sm w-full text-center space-y-4 shadow-2xl text-white">
+          <div className="w-10 h-10 border-3 border-[#EB3223] border-t-transparent rounded-full animate-spin mx-auto" />
+          <div className="space-y-1">
+            <h3 className="text-base font-black tracking-tight">Verifying Staff Authorization</h3>
+            <p className="text-xs text-slate-400 font-medium">Connecting to Foodwok Operations Portal...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 2. Role guard check - restricts admin portal to authenticated staff/admin users
+  if (!activeUser || role === 'CUSTOMER') {
     return (
       <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-4">
         <div className="bg-white rounded-3xl border border-slate-200/80 p-8 max-w-md w-full text-center space-y-6 shadow-xl">
@@ -31,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="space-y-2">
             <h2 className="text-2xl font-black text-slate-900">403 Forbidden</h2>
             <p className="text-slate-500 text-sm font-medium">
-              You are currently logged in as a <strong>CUSTOMER</strong>. Admin & Kitchen routes are restricted to Kitchen Staff and Admins only.
+              You are currently logged in as a <strong>CUSTOMER</strong>. Admin &amp; Kitchen routes are restricted to Kitchen Staff and Admins only.
             </p>
           </div>
           <div className="space-y-3 pt-2">
