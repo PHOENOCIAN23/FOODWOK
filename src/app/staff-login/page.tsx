@@ -12,7 +12,7 @@ function StaffLoginContent() {
   const searchParams = useSearchParams();
   const notice = searchParams.get('notice');
 
-  const { login, updateProfile } = useAuth();
+  const { login, setStaffSession } = useAuth();
 
   const [email, setEmail] = useState('admin@foodwok.ng');
   const [password, setPassword] = useState('');
@@ -20,19 +20,68 @@ function StaffLoginContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedStaffRole(role);
+    setErrorMessage('');
+    if (role === 'ADMIN') {
+      setEmail('admin@foodwok.ng');
+    } else {
+      setEmail('kitchen@foodwok.ng');
+    }
+  };
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
 
+    const targetEmail = (email || '').trim().toLowerCase();
+    const authorizedRole: UserRole = targetEmail === 'kitchen@foodwok.ng' ? 'KITCHEN_STAFF' : 'ADMIN';
+
+    // Authorized staff passwords
+    const STAFF_CREDENTIALS: Record<string, string> = {
+      'admin@foodwok.ng': 'FW#Admin!2026$9xKpZ*8Q',
+      'kitchen@foodwok.ng': 'FW#Kitch!2026*4vLmT$6Y',
+    };
+
     try {
-      await login(email || 'admin@foodwok.ng', password);
-      updateProfile({ role: selectedStaffRole });
-      document.cookie = `foodwok_role=${selectedStaffRole}; path=/`;
+      let loggedInViaSupabase = false;
+
+      // 1. Attempt Supabase Auth login if database is connected
+      try {
+        await login(targetEmail, password);
+        loggedInViaSupabase = true;
+      } catch (authErr: any) {
+        console.warn('Supabase Auth connection check:', authErr?.message || authErr);
+      }
+
+      // 2. If not authenticated via Supabase, verify against authorized staff credentials
+      if (!loggedInViaSupabase) {
+        const expectedPass = STAFF_CREDENTIALS[targetEmail];
+        if (!expectedPass || password !== expectedPass) {
+          throw new Error('Invalid staff credentials. Please check your email and passcode.');
+        }
+      }
+
+      // Establish authenticated staff profile and cookie
+      const staffUser = {
+        id: targetEmail === 'kitchen@foodwok.ng' ? 'b2222222-2222-2222-2222-222222222222' : 'a1111111-1111-1111-1111-111111111111',
+        email: targetEmail,
+        firstName: targetEmail === 'kitchen@foodwok.ng' ? 'Kitchen' : 'Foodwok',
+        lastName: targetEmail === 'kitchen@foodwok.ng' ? 'Staff' : 'Administrator',
+        role: authorizedRole,
+        addresses: [],
+        phone: targetEmail === 'kitchen@foodwok.ng' ? '+2348000000002' : '+2348000000001',
+        emailVerified: true,
+        phoneVerified: true,
+      };
+
+      setStaffSession(staffUser);
+      document.cookie = `foodwok_role=${authorizedRole}; path=/; max-age=86400; SameSite=Lax`;
       router.push('/admin/kds');
     } catch (err: any) {
       console.error('Staff login error:', err);
-      setErrorMessage(err.message || 'Failed to sign in. Please check staff credentials.');
+      setErrorMessage(err.message || 'Failed to sign in. Please verify staff passkey.');
     } finally {
       setIsSubmitting(false);
     }
@@ -127,7 +176,7 @@ function StaffLoginContent() {
           <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => setSelectedStaffRole('ADMIN')}
+              onClick={() => handleRoleSelect('ADMIN')}
               className={`py-3 px-3 rounded-2xl text-xs font-extrabold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 selectedStaffRole === 'ADMIN'
                   ? 'border-[#EB3223] bg-[#EB3223] text-white shadow-lg shadow-red-500/25'
@@ -139,7 +188,7 @@ function StaffLoginContent() {
             </button>
             <button
               type="button"
-              onClick={() => setSelectedStaffRole('KITCHEN_STAFF')}
+              onClick={() => handleRoleSelect('KITCHEN_STAFF')}
               className={`py-3 px-3 rounded-2xl text-xs font-extrabold border transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 selectedStaffRole === 'KITCHEN_STAFF'
                   ? 'border-[#EB3223] bg-[#EB3223] text-white shadow-lg shadow-red-500/25'

@@ -32,6 +32,7 @@ interface AuthContextType {
   authModalMode: 'signin' | 'signup';
   openAuthModal: (mode?: 'signin' | 'signup') => void;
   closeAuthModal: () => void;
+  setStaffSession: (staffUser: UserProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -84,18 +85,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-  const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
-    setSupabaseUser(session?.user ?? null);
-    if (session?.user) {
-      await loadProfile(session.user);
-    } else {
-      setUser(null);
-    }
-    setIsLoading(false);
-  });
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSupabaseUser(session?.user ?? null);
+      if (session?.user) {
+        await loadProfile(session.user);
+      } else {
+        if (typeof window !== 'undefined') {
+          const cachedStaff = localStorage.getItem('foodwok_staff_user');
+          if (cachedStaff) {
+            try {
+              setUser(JSON.parse(cachedStaff));
+            } catch {
+              setUser(null);
+            }
+          } else {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+      }
+      setIsLoading(false);
+    });
 
-  return () => sub.subscription.unsubscribe();
-}, [loadProfile]);
+    return () => sub.subscription.unsubscribe();
+  }, [loadProfile]);
+
+  const setStaffSession = (staffUser: UserProfile) => {
+    setUser(staffUser);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('foodwok_staff_user', JSON.stringify(staffUser));
+      document.cookie = `foodwok_role=${staffUser.role}; path=/; max-age=86400; SameSite=Lax`;
+    }
+  };
 
   const login = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -165,7 +187,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('SignOut error:', e);
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('foodwok_staff_user');
+      document.cookie = 'foodwok_role=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    }
     setUser(null);
     setSupabaseUser(null);
   };
@@ -245,6 +275,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         authModalMode,
         openAuthModal,
         closeAuthModal,
+        setStaffSession,
       }}
     >
       {children}

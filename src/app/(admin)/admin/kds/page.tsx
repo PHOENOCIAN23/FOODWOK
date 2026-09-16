@@ -44,12 +44,21 @@ export default function KitchenDisplaySystemPage() {
   const [ledgerRecords, setLedgerRecords] = useState<DailyAccountingRecord[]>([]);
   const [selectedLedgerDate, setSelectedLedgerDate] = useState<string>('');
   const [timeFilter, setTimeFilter] = useState<'ALL' | 'THIS_MONTH' | 'LAST_7_DAYS'>('ALL');
+  const [showAccountingNotice, setShowAccountingNotice] = useState(false);
 
   // Update timer every 10 seconds for delay indicators
   useEffect(() => {
     setIsMounted(true);
     setCurrentTime(Date.now());
     const interval = setInterval(() => setCurrentTime(Date.now()), 10000);
+
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('notice') === 'accounting_restricted') {
+        setShowAccountingNotice(true);
+      }
+    }
+
     return () => clearInterval(interval);
   }, []);
 
@@ -371,6 +380,24 @@ export default function KitchenDisplaySystemPage() {
           </div>
         )}
       </div>
+
+      {/* Restricted Area Notice Banner */}
+      {showAccountingNotice && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-5 py-3.5 rounded-2xl flex items-center justify-between text-xs font-bold animate-fade-in shadow-xs">
+          <div className="flex items-center gap-2">
+            <Lock className="w-4 h-4 text-amber-700 shrink-0" />
+            <span>
+              Restricted Access: The Daily Accounting Ledger is reserved strictly for Administrators. Your session has been redirected to the Kitchen KDS terminal.
+            </span>
+          </div>
+          <button
+            onClick={() => setShowAccountingNotice(false)}
+            className="text-amber-700 hover:text-amber-950 text-xs font-black uppercase tracking-wider px-2 py-1 rounded-lg hover:bg-amber-100 transition-colors"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* 4 Kanban Columns */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">

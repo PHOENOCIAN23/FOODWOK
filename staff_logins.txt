@@ -1,0 +1,42 @@
+================================================================================
+FOODWOK - AUTHORIZED STAFF & TERMINAL CREDENTIALS
+================================================================================
+Generated: 2026-09-16
+Status: ACTIVE & AUTHORIZED
+Staff Terminal Login URL: /staff-login (http://localhost:3000/staff-login)
+
+--------------------------------------------------------------------------------
+1. ADMINISTRATOR CREDENTIALS
+--------------------------------------------------------------------------------
+Email:       admin@foodwok.ng
+Password:    FW#Admin!2026$9xKpZ*8Q
+Role:        ADMIN
+Permissions: Full administrative & financial access
+Allowed Routes:
+  - /admin/kds         (Kitchen Display System)
+  - /admin/menu        (Menu Catalog & Add-ons Manager)
+  - /admin/accounting  (Financial Ledgers & Revenue Reports)
+
+--------------------------------------------------------------------------------
+2. KITCHEN STAFF CREDENTIALS
+--------------------------------------------------------------------------------
+Email:       kitchen@foodwok.ng
+Password:    FW#Kitch!2026*4vLmT$6Y
+Role:        KITCHEN_STAFF
+Permissions: Kitchen operations & meal preparation only
+Allowed Routes:
+  - /admin/kds         (Kitchen Display System)
+  - /admin/menu        (Menu Catalog & Add-ons Manager)
+Restricted Routes:
+  - /admin/accounting  (BLOCKED: Restricted strictly to Administrator)
+
+--------------------------------------------------------------------------------
+SUPABASE DATABASE CONFIGURATION
+--------------------------------------------------------------------------------
+To sync these credentials into your live Supabase project:
+1. Open your Supabase Dashboard (https://supabase.com/dashboard)
+2. Go to SQL Editor -> New Query
+3. Run the SQL script from: supabase_seed_staff.sql
+   This will create the auth users in auth.users, configure email identities,
+   and grant the designated ADMIN and KITCHEN_STAFF roles in public.user_profiles.
+================================================================================

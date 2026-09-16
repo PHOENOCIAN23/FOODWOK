@@ -47,9 +47,33 @@ export async function POST() {
     const { error: addOnErr } = await supabase.from('add_ons').upsert(addOnsPayload, { onConflict: 'id' });
     if (addOnErr) console.error('Add-ons seed error:', addOnErr);
 
+    // 4. Seed Authorized Staff Profiles (admin@foodwok.ng & kitchen@foodwok.ng)
+    const staffProfilesPayload = [
+      {
+        id: 'a1111111-1111-1111-1111-111111111111',
+        email: 'admin@foodwok.ng',
+        first_name: 'Foodwok',
+        last_name: 'Administrator',
+        phone: '+2348000000001',
+        role: 'ADMIN',
+        addresses: [],
+      },
+      {
+        id: 'b2222222-2222-2222-2222-222222222222',
+        email: 'kitchen@foodwok.ng',
+        first_name: 'Kitchen',
+        last_name: 'Staff',
+        phone: '+2348000000002',
+        role: 'KITCHEN_STAFF',
+        addresses: [],
+      },
+    ];
+    const { error: staffErr } = await supabase.from('user_profiles').upsert(staffProfilesPayload, { onConflict: 'id' });
+    if (staffErr) console.error('Staff profiles seed error:', staffErr);
+
     return NextResponse.json({
       status: true,
-      message: 'Supabase database successfully seeded with updated FOODWOK Categories, Menu Items, and Add-ons!',
+      message: 'Supabase database successfully seeded with Categories, Menu Items, Add-ons, and Authorized Staff Profiles!',
     });
   } catch (err: any) {
     return NextResponse.json({ status: false, message: err.message || 'Seeding error' }, { status: 500 });
