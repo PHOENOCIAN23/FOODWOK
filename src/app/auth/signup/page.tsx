@@ -150,10 +150,11 @@ function SignUpContent() {
           {/* Row 1: First & Last Name */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              <label htmlFor="signup-firstname" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 FIRST NAME
               </label>
               <input
+                id="signup-firstname"
                 type="text"
                 required
                 placeholder="Chidi"
@@ -164,10 +165,11 @@ function SignUpContent() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              <label htmlFor="signup-lastname" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 LAST NAME
               </label>
               <input
+                id="signup-lastname"
                 type="text"
                 required
                 placeholder="Okeke"
@@ -179,10 +181,11 @@ function SignUpContent() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <label htmlFor="signup-email" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               EMAIL ADDRESS
             </label>
             <input
+              id="signup-email"
               type="email"
               required
               placeholder="chidi@example.com"
@@ -193,10 +196,11 @@ function SignUpContent() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <label htmlFor="signup-phone" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               PHONE NUMBER (NIGERIA)
             </label>
             <input
+              id="signup-phone"
               type="tel"
               required
               placeholder="+234 800 000 0000"
@@ -207,10 +211,11 @@ function SignUpContent() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+            <label htmlFor="signup-password" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
               PASSWORD
             </label>
             <input
+              id="signup-password"
               type="password"
               required
               placeholder="Min. 8 characters"

@@ -205,7 +205,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (!isMounted) return;
 
     pullOrdersFromServer();
-    const interval = setInterval(pullOrdersFromServer, 1000);
+    const interval = setInterval(pullOrdersFromServer, 5000);
 
     const handleFocus = () => pullOrdersFromServer();
     window.addEventListener('focus', handleFocus);

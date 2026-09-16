@@ -47,12 +47,21 @@ export async function verifyPaystackTransaction(reference: string) {
 
 export function verifyPaystackHmacSignature(bodyString: string, signatureHeader: string): boolean {
   const secretKey = process.env.PAYSTACK_SECRET_KEY || '';
-  if (!secretKey) return false;
+  if (!secretKey || !signatureHeader) return false;
 
   const hash = crypto
     .createHmac('sha512', secretKey)
     .update(bodyString)
     .digest('hex');
 
-  return hash === signatureHeader;
+  try {
+    const hashBuffer = Buffer.from(hash, 'utf8');
+    const signatureBuffer = Buffer.from(signatureHeader, 'utf8');
+    if (hashBuffer.length !== signatureBuffer.length) {
+      return false;
+    }
+    return crypto.timingSafeEqual(hashBuffer, signatureBuffer);
+  } catch {
+    return false;
+  }
 }

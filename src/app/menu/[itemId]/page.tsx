@@ -168,7 +168,16 @@ export default function MenuItemDetailPage({
                         return (
                           <div
                             key={addOn.id}
-                            onClick={() => toggleAddOn(addOn)}
+                            role="checkbox"
+                            aria-checked={isChecked}
+                            tabIndex={isExtraAvailable ? 0 : -1}
+                            onClick={() => isExtraAvailable && toggleAddOn(addOn)}
+                            onKeyDown={(e) => {
+                              if (isExtraAvailable && (e.key === 'Enter' || e.key === ' ')) {
+                                e.preventDefault();
+                                toggleAddOn(addOn);
+                              }
+                            }}
                             className={`group border rounded-2xl p-3.5 flex items-center justify-between transition-all duration-200 ${
                               !isExtraAvailable
                                 ? 'bg-slate-100/50 border-slate-200 cursor-not-allowed opacity-60'

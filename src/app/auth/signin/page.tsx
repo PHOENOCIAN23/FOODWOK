@@ -212,10 +212,11 @@ export default function SignInPage() {
         {authMethod === 'EMAIL' && (
           <form onSubmit={handleEmailSubmit} className="space-y-4 animate-fade-in">
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              <label htmlFor="signin-email" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 EMAIL ADDRESS
               </label>
               <input
+                id="signin-email"
                 type="email"
                 required
                 placeholder="you@example.com"
@@ -226,10 +227,11 @@ export default function SignInPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              <label htmlFor="signin-password" className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
                 PASSWORD
               </label>
               <input
+                id="signin-password"
                 type="password"
                 required
                 placeholder="••••••••"

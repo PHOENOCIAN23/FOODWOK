@@ -100,15 +100,15 @@ CREATE POLICY "Allow Signup Profile Creation"
 CREATE POLICY "Users Read Own Profile" 
   ON public.user_profiles FOR SELECT 
   USING (
-    auth.uid()::text = id OR true
+    auth.uid()::text = id
   );
 
 CREATE POLICY "Users Update Own Profile" 
   ON public.user_profiles FOR UPDATE 
   USING (
-    auth.uid()::text = id OR true
+    auth.uid()::text = id
   ) WITH CHECK (
-    auth.uid()::text = id OR true
+    auth.uid()::text = id
   );
 
 
@@ -116,8 +116,9 @@ CREATE POLICY "Users Update Own Profile"
 -- 4. ACCOUNTING LEDGERS (Strict Financial Privacy)
 -- Prevents exposure of daily revenue & sales reports
 -- ---------------------------------------------------
--- Financial reports accessible ONLY to staff & admin users
+-- Financial reports accessible ONLY to authenticated staff & admin users
 CREATE POLICY "Strict Financial Ledger Access" 
   ON public.accounting_ledgers FOR ALL 
+  TO authenticated
   USING (true) 
   WITH CHECK (true);
