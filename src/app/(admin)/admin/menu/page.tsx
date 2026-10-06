@@ -45,7 +45,7 @@ export default function AdminMenuPage() {
 
   // Form State for Dish Editing
   const [dishName, setDishName] = useState('');
-  const [dishCategory, setDishCategory] = useState<string>('rice');
+  const [dishCategory, setDishCategory] = useState<string>('your-food');
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [newCategoryText, setNewCategoryText] = useState('');
 

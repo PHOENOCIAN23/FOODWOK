@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { MenuItem, AddOnOption, CartItem } from '@/types/foodwok';
 import { calculateDeliveryFeeFromLocation, DeliveryCalculationResult } from '@/lib/deliveryCalculator';
 
@@ -50,7 +50,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cartItems, setCartItems] = useState<CartItem[]>(INITIAL_DEMO_CART);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [activeCustomizingItem, setActiveCustomizingItem] = useState<MenuItem | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const isMountedRef = useRef(false);
 
   // Dynamic location & delivery calculation state
   const [deliveryLocation, setDeliveryLocation] = useState<string>(DEFAULT_ADDRESS);
@@ -59,7 +59,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   useEffect(() => {
-    setIsMounted(true);
+    isMountedRef.current = true;
     const saved = localStorage.getItem('foodwok_cart');
     if (saved) {
       try {
@@ -71,10 +71,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   useEffect(() => {
-    if (isMounted) {
+    if (isMountedRef.current) {
       localStorage.setItem('foodwok_cart', JSON.stringify(cartItems));
     }
-  }, [cartItems, isMounted]);
+  }, [cartItems]);
 
   const setDeliveryLocationInfo = useCallback((address: string, landmark?: string) => {
     if (!address) return;

@@ -38,11 +38,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const supabase = createClient();
 
-function mapDbProfile(row: any, authUser: SupabaseUser): UserProfile {
+interface DbProfileRow {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  role?: string | null;
+  addresses?: SavedAddress[] | null;
+}
+
+function mapDbProfile(row: DbProfileRow | null | undefined, authUser: SupabaseUser): UserProfile {
   return {
     id: authUser.id,
-    firstName: row?.first_name || '',
-    lastName: row?.last_name || '',
+    firstName: row?.first_name || authUser.user_metadata?.first_name || '',
+    lastName: row?.last_name || authUser.user_metadata?.last_name || '',
     email: authUser.email || row?.email || '',
     phone: row?.phone || authUser.phone || '',
     role: (row?.role as UserRole) || 'CUSTOMER',
@@ -60,27 +69,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [authModalMode, setAuthModalMode] = useState<'signin' | 'signup'>('signin');
 
   const loadProfile = useCallback(async (authUser: SupabaseUser) => {
-    const { data } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', authUser.id)
-      .maybeSingle();
+    try {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', authUser.id)
+        .maybeSingle();
 
-    if (!data) {
-      // First login after signup (or OAuth first-time) — create the row.
-      const seed = {
-        id: authUser.id,
-        email: authUser.email || '',
-        first_name: authUser.user_metadata?.first_name || '',
-        last_name: authUser.user_metadata?.last_name || '',
-        phone: authUser.phone || '',
-        role: 'CUSTOMER' as UserRole,
-        addresses: [] as SavedAddress[],
-      };
-      await supabase.from('user_profiles').upsert(seed, { onConflict: 'id' });
-      setUser(mapDbProfile(seed, authUser));
-    } else {
-      setUser(mapDbProfile(data, authUser));
+      if (!data) {
+        // First login after signup (or OAuth first-time) — create the row.
+        const seed: DbProfileRow = {
+          email: authUser.email || '',
+          first_name: authUser.user_metadata?.first_name || '',
+          last_name: authUser.user_metadata?.last_name || '',
+          phone: authUser.phone || '',
+          role: 'CUSTOMER',
+          addresses: [],
+        };
+        try {
+          await supabase.from('user_profiles').upsert({ id: authUser.id, ...seed }, { onConflict: 'id' });
+        } catch (e) {
+          console.warn('user_profiles upsert notice:', e);
+        }
+        setUser(mapDbProfile(seed, authUser));
+      } else {
+        setUser(mapDbProfile(data, authUser));
+      }
+    } catch (err) {
+      console.warn('Error loading user profile:', err);
+      setUser(mapDbProfile(null, authUser));
     }
   }, []);
 
@@ -150,18 +167,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
 
     if (data.user) {
-      await supabase.from('user_profiles').upsert(
-        {
-          id: data.user.id,
-          email: userData.email,
-          first_name: userData.firstName || '',
-          last_name: userData.lastName || '',
-          phone: userData.phone || '',
-          role: 'CUSTOMER',
-          addresses: [],
-        },
-        { onConflict: 'id' }
-      );
+      try {
+        await supabase.from('user_profiles').upsert(
+          {
+            id: data.user.id,
+            email: userData.email,
+            first_name: userData.firstName || '',
+            last_name: userData.lastName || '',
+            phone: userData.phone || '',
+            role: 'CUSTOMER',
+            addresses: [],
+          },
+          { onConflict: 'id' }
+        );
+      } catch (upsertErr) {
+        console.warn('Initial profile upsert notice:', upsertErr);
+      }
       await loadProfile(data.user);
     }
     setIsAuthModalOpen(false);

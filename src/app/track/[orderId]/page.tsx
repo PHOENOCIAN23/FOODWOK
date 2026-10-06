@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, use } from 'react';
+import React, { useState, useEffect, use, useRef } from 'react';
 import Link from 'next/link';
-import { ChevronLeft, Phone, CheckCircle2, Clock, ChefHat, Bike, PartyPopper, Sparkles, X } from 'lucide-react';
+import { ChevronLeft, Phone, CheckCircle2, ChefHat, Bike, PartyPopper, X } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { useOrders } from '@/context/OrderContext';
 import { OrderStatus } from '@/types/foodwok';
@@ -10,17 +10,11 @@ import { Blobatar } from '@/components/ui/Blobatar';
 
 export default function OrderTrackingPage({ params }: { params: Promise<{ orderId: string }> }) {
   const resolvedParams = use(params);
-  const { getOrderById, advanceOrderStatus } = useOrders();
+  const { getOrderById } = useOrders();
 
-  const [currentOrder, setCurrentOrder] = useState(() => getOrderById(resolvedParams.orderId));
+  const currentOrder = getOrderById(resolvedParams.orderId);
   const [showThankYouModal, setShowThankYouModal] = useState(false);
-
-  useEffect(() => {
-    const found = getOrderById(resolvedParams.orderId);
-    if (found) {
-      setCurrentOrder(found);
-    }
-  }, [resolvedParams.orderId, getOrderById]);
+  const hasTriggeredRef = useRef(false);
 
   // Live status ticker simulation
   const activeStatus: OrderStatus = currentOrder?.status || 'preparing';
@@ -28,7 +22,8 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
 
   // Trigger Thank You celebration pop-up when status is delivered
   useEffect(() => {
-    if (isDelivered) {
+    if (isDelivered && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
       setShowThankYouModal(true);
     }
   }, [isDelivered]);

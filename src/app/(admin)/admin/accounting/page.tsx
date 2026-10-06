@@ -124,17 +124,18 @@ export default function StandaloneAccountingLedgerPage() {
 
   // 2. Filter master transactions by Time Period / Custom Date Range / Search Query
   const filteredTransactions = useMemo(() => {
-    const currentMonth = new Date().toISOString().substring(0, 7);
-    const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const today = new Date();
+    const currentMonth = today.toISOString().substring(0, 7);
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
 
     return masterCompletedOrdersPool.filter(({ order, dateString }) => {
-      const orderTime = order.createdAtTimestamp || Date.now();
-
       // Time Period Quick Filters
       if (timeFilter === 'THIS_MONTH' && !dateString.startsWith(currentMonth)) {
         return false;
       }
-      if (timeFilter === 'LAST_7_DAYS' && orderTime < sevenDaysAgoMs) {
+      if (timeFilter === 'LAST_7_DAYS' && dateString < sevenDaysAgoStr) {
         return false;
       }
 

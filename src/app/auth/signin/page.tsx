@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { AlertCircle, Phone, Mail, CheckCircle2, Lock } from 'lucide-react';
 import { LiquidLogo } from '@/components/ui/LiquidLogo';
-import { ShaderGradient } from '@/components/ui/ShaderGradient';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -35,29 +34,14 @@ export default function SignInPage() {
     try {
       await login(email, password);
       router.push('/');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Sign in error:', err);
-      const code = err?.code || '';
-      const msg = err?.message || '';
-
-      let isUnregistered = code === 'auth/user-not-found' || msg.includes('user-not-found');
-
-      if (!isUnregistered && email) {
-        try {
-          const res = await fetch(`/api/auth/check-email?email=${encodeURIComponent(email)}`);
-          const data = await res.json();
-          if (data && !data.exists) {
-            isUnregistered = true;
-          }
-        } catch { }
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.toLowerCase().includes('email not confirmed')) {
+        setErrorMessage('Please check your email and click the confirmation link to activate your account.');
+      } else {
+        setErrorMessage('Incorrect email or password. Please check your credentials or create an account below.');
       }
-
-      if (isUnregistered) {
-        router.push(`/auth/signup?email=${encodeURIComponent(email)}&notice=not_registered`);
-        return;
-      }
-
-      setErrorMessage('Incorrect email or password. Please check your details or create an account below.');
     } finally {
       setIsSubmitting(false);
     }
@@ -122,19 +106,6 @@ export default function SignInPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-[#EB3223]/40" />
 
-        {/* 3D Animated Shader Gradient */}
-        <div className="absolute inset-0 opacity-40 mix-blend-screen pointer-events-none">
-          <ShaderGradient
-            color1="#EB3223"
-            color2="#F59E0B"
-            color3="#1E1B4B"
-            uSpeed={0.3}
-            uStrength={1.5}
-            uDensity={1.2}
-            uFrequency={4.2}
-            brightness={1.05}
-          />
-        </div>
 
         {/* Top Brand Logo with Liquid Metal Shader */}
         <div className="relative z-10 flex items-center gap-2">

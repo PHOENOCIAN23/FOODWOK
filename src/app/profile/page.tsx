@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Plus, MapPin, Trash2, Check, LogOut, ShoppingBag, AlertCircle, Sparkles } from 'lucide-react';
@@ -22,6 +22,7 @@ function ProfileContent() {
   const [email, setEmail] = useState(user?.email || 'chidi@example.com');
   const [phone, setPhone] = useState(user?.phone || '+234 800 000 0000');
   const [verificationSent, setVerificationSent] = useState(false);
+  const prevUserIdRef = useRef<string | undefined>(user?.id);
 
   // Add Address Form State (Auto-opened for first-timers or address prompt)
   const [showAddAddressForm, setShowAddAddressForm] = useState(
@@ -35,7 +36,8 @@ function ProfileContent() {
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.id !== prevUserIdRef.current) {
+      prevUserIdRef.current = user.id;
       setFirstName(user.firstName);
       setLastName(user.lastName);
       setEmail(user.email);
@@ -60,8 +62,9 @@ function ProfileContent() {
       await sendEmailVerificationLink();
       setVerificationSent(true);
       setTimeout(() => setVerificationSent(false), 5000);
-    } catch (e: any) {
-      alert('Notice: Could not send verification link. ' + (e.message || 'Please check email address.'));
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Please check email address.';
+      alert('Notice: Could not send verification link. ' + msg);
     }
   };
 

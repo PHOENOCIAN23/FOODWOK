@@ -5,11 +5,9 @@ import { MenuItem, AddOnOption, CategoryOption } from '@/types/foodwok';
 import { menuItems as defaultMenuItems, standardAddOns as defaultAddOns } from '@/data/menuData';
 
 export const DEFAULT_CATEGORIES: CategoryOption[] = [
-  { id: 'rice', label: 'Rice Dishes' },
-  { id: 'swallow', label: 'Swallow & Soups' },
-  { id: 'grills', label: 'Grills & Barbecue' },
-  { id: 'sides', label: 'Sides & Small Bites' },
-  { id: 'drinks', label: 'Drinks & Beverages' },
+  { id: 'the-chill', label: 'The Chill' },
+  { id: 'the-grill', label: 'The Grill' },
+  { id: 'your-food', label: 'Your Food' },
 ];
 
 interface MenuContextType {
@@ -112,7 +110,9 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (savedCategoriesRaw) {
       try {
         const parsedCats: CategoryOption[] = JSON.parse(savedCategoriesRaw);
-        const mergedCategories = [...parsedCats];
+        const legacyIds = new Set(['rice', 'swallow', 'grills', 'sides', 'drinks']);
+        const validCats = parsedCats.filter((c) => !legacyIds.has(c.id));
+        const mergedCategories = validCats.length > 0 ? [...validCats] : [...DEFAULT_CATEGORIES];
         for (const defCat of DEFAULT_CATEGORIES) {
           if (!mergedCategories.some((c) => c.id === defCat.id)) {
             mergedCategories.push(defCat);
@@ -192,7 +192,7 @@ export const MenuProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isMounted) return;
 
     pullFromServerSync();
-    const interval = setInterval(pullFromServerSync, 1500);
+    const interval = setInterval(pullFromServerSync, 4000);
 
     const handleFocus = () => pullFromServerSync();
     window.addEventListener('focus', handleFocus);

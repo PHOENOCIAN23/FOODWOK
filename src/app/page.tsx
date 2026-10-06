@@ -6,20 +6,12 @@ import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { FoodMenuGrid } from '@/components/FoodMenuGrid';
 import { useMenu } from '@/context/MenuContext';
-import { useAuth } from '@/context/AuthContext';
 
 export default function HomePage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading } = useAuth();
   const { items } = useMenu();
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isLoading, router]);
 
   const heroItem = useMemo(() => {
     return items.find((i) => i.id === 'smoky-jollof-rice') || items[0];

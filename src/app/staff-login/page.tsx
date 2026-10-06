@@ -2,19 +2,17 @@
 
 import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Lock, ShieldAlert, ChefHat, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types/foodwok';
 import { LiquidLogo } from '@/components/ui/LiquidLogo';
-import { ShaderGradient } from '@/components/ui/ShaderGradient';
 
 function StaffLoginContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const notice = searchParams.get('notice');
 
-  const { login, setStaffSession } = useAuth();
+  const { setStaffSession } = useAuth();
 
   const [email, setEmail] = useState('admin@foodwok.ng');
   const [password, setPassword] = useState('');
@@ -63,9 +61,10 @@ function StaffLoginContent() {
 
       // Perform a full browser window redirect to guarantee fresh cookies are attached
       window.location.href = data.redirectTo || '/admin/kds';
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Staff login error:', err);
-      setErrorMessage(err.message || 'Failed to sign in. Please verify staff passkey.');
+      const msg = err instanceof Error ? err.message : 'Failed to sign in. Please verify staff passkey.';
+      setErrorMessage(msg);
     } finally {
       setIsSubmitting(false);
     }
@@ -85,19 +84,6 @@ function StaffLoginContent() {
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/60" />
 
-        {/* 3D Animated Shader Mesh Gradient Backdrop */}
-        <div className="absolute inset-0 opacity-45 mix-blend-screen pointer-events-none">
-          <ShaderGradient
-            color1="#EB3223"
-            color2="#B91C1C"
-            color3="#0F172A"
-            uSpeed={0.25}
-            uStrength={1.4}
-            uDensity={1.3}
-            uFrequency={4.0}
-            brightness={1.0}
-          />
-        </div>
 
         {/* Top Left Staff Portal Title with Liquid Metal Logo */}
         <div className="relative z-10 flex items-center gap-3">

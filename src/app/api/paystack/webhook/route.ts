@@ -22,7 +22,16 @@ export async function POST(req: Request) {
 
       console.log(`[Paystack Webhook] Verified payment charge.success for ref: ${reference}, amount: ${amountInKobo} kobo, email: ${customerEmail}`);
 
-      // Here the order is marked as verified & paid in database / memory
+      // Mark order as paid & verified in server memory store
+      if (globalThis._foodwok_server_orders_store) {
+        globalThis._foodwok_server_orders_store.orders = globalThis._foodwok_server_orders_store.orders.map((o) => {
+          if (o.paystackReference === reference) {
+            return { ...o, paymentStatus: 'PAID', paystackVerified: true };
+          }
+          return o;
+        });
+        globalThis._foodwok_server_orders_store.lastUpdated = Date.now();
+      }
     }
 
     return NextResponse.json({ status: true, message: 'Webhook received successfully' });

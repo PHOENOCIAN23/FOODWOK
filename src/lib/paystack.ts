@@ -5,7 +5,7 @@ export interface PaystackInitializeParams {
   amountInKobo: number;
   reference: string;
   callbackUrl?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export async function initializePaystackTransaction(params: PaystackInitializeParams) {

@@ -15,12 +15,8 @@ const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1551183053-bf91a1d8114
 
 export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
   const router = useRouter();
-  const [imgSrc, setImgSrc] = useState(item.image);
-
-  // Keep image state in sync when admin updates dish image
-  useEffect(() => {
-    setImgSrc(item.image);
-  }, [item.image]);
+  const [hasError, setHasError] = useState(false);
+  const imgSrc = hasError ? FALLBACK_IMAGE : item.image;
 
   const isAvailable = item.isAvailable !== false;
 
@@ -54,7 +50,7 @@ export const FoodCard: React.FC<FoodCardProps> = ({ item }) => {
         <img
           src={imgSrc || item.image}
           alt={item.name}
-          onError={() => setImgSrc(FALLBACK_IMAGE)}
+          onError={() => setHasError(true)}
           className={`w-full h-full object-cover transition-transform duration-500 ${
             isAvailable ? 'group-hover:scale-105' : 'grayscale-50'
           }`}

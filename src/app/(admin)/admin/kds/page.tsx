@@ -49,7 +49,7 @@ export default function KitchenDisplaySystemPage() {
   const activeUser = user || localStaffUser;
   const isAdmin = activeUser?.role === 'ADMIN';
 
-  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [currentTime, setCurrentTime] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const [expandedOrderIds, setExpandedOrderIds] = useState<Set<string>>(new Set());
 
@@ -352,8 +352,11 @@ export default function KitchenDisplaySystemPage() {
       return ledger.dateString.startsWith(currentMonth);
     }
     if (timeFilter === 'LAST_7_DAYS') {
-      const sevenDaysAgoMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
-      return ledger.archivedAtTimestamp >= sevenDaysAgoMs;
+      const today = new Date();
+      const sevenDaysAgo = new Date(today);
+      sevenDaysAgo.setDate(today.getDate() - 7);
+      const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+      return ledger.dateString >= sevenDaysAgoStr;
     }
     return true;
   });

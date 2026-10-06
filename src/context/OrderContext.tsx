@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Order, CartItem, DeliveryDetails, OrderStatus } from '@/types/foodwok';
 import { playKitchenOrderChime } from '@/lib/audioAlert';
+import { createClient } from '@/lib/supabase/client';
 
 interface OrderContextType {
   orders: Order[];
@@ -75,14 +76,14 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [orders, setOrders] = useState<Order[]>([INITIAL_DEMO_ORDER]);
   const [isMounted, setIsMounted] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
-  const [lastServerSyncTimestamp, setLastServerSyncTimestamp] = useState<number>(0);
+  const lastServerSyncTimestampRef = useRef<number>(0);
   const [currentDayDateString, setCurrentDayDateString] = useState<string>(
     () => new Date().toISOString().split('T')[0]
   );
   const knownOrderIdsRef = useRef<Set<string>>(new Set([INITIAL_DEMO_ORDER.id]));
 
   // Helper to push actions to server /api/orders-sync
-  const pushServerAction = useCallback(async (payload: any) => {
+  const pushServerAction = useCallback(async (payload: Record<string, unknown>) => {
     try {
       const res = await fetch('/api/orders-sync', {
         method: 'POST',
@@ -92,7 +93,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (res.ok) {
         const data = await res.json();
         if (data.lastUpdated) {
-          setLastServerSyncTimestamp(data.lastUpdated);
+          lastServerSyncTimestampRef.current = data.lastUpdated;
         }
       }
     } catch {}
@@ -104,7 +105,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const res = await fetch('/api/orders-sync');
       if (res.ok) {
         const data = await res.json();
-        if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestamp) {
+        if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestampRef.current) {
           if (Array.isArray(data.orders)) {
             const serverOrders: Order[] = data.orders;
 
@@ -122,44 +123,49 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
 
             setOrders(serverOrders);
-            localStorage.setItem('foodwok_orders', JSON.stringify(serverOrders));
+            try {
+              localStorage.setItem('foodwok_orders', JSON.stringify(serverOrders));
+            } catch {}
           }
-          setLastServerSyncTimestamp(data.lastUpdated);
+          lastServerSyncTimestampRef.current = data.lastUpdated;
         }
       }
     } catch {}
-  }, [lastServerSyncTimestamp, isSoundEnabled]);
+  }, [isSoundEnabled]);
 
   // Archive current day's completed orders to ledger database and clear completed board
   const archiveCurrentDayAndResetBoard = useCallback(async (): Promise<boolean> => {
     try {
       const todayStr = new Date().toISOString().split('T')[0];
-      const completedOrders = orders.filter((o) => o.status === 'delivered');
+      let remainingActive: Order[] = [];
 
-      if (completedOrders.length > 0) {
-        // Send archive payload to accounting endpoint
-        await fetch('/api/accounting', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            action: 'ARCHIVE_DAY',
-            targetDateString: todayStr,
-            orders: orders,
-          }),
-        });
-      }
+      setOrders((prevOrders) => {
+        const completedOrders = prevOrders.filter((o) => o.status === 'delivered');
+        if (completedOrders.length > 0) {
+          fetch('/api/accounting', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'ARCHIVE_DAY',
+              targetDateString: todayStr,
+              orders: prevOrders,
+            }),
+          }).catch(() => {});
+        }
+        remainingActive = prevOrders.filter((o) => o.status !== 'delivered');
+        return remainingActive;
+      });
 
-      // Remove completed orders from active board for the new day
-      const remainingActiveOrders = orders.filter((o) => o.status !== 'delivered');
-      setOrders(remainingActiveOrders);
-      localStorage.setItem('foodwok_orders', JSON.stringify(remainingActiveOrders));
-      await pushServerAction({ action: 'SYNC_ALL', orders: remainingActiveOrders });
+      try {
+        localStorage.setItem('foodwok_orders', JSON.stringify(remainingActive));
+      } catch {}
+      await pushServerAction({ action: 'SYNC_ALL', orders: remainingActive });
 
       return true;
     } catch {
       return false;
     }
-  }, [orders, pushServerAction]);
+  }, [pushServerAction]);
 
   // Check for Midnight (00:00) Rollover automatically
   useEffect(() => {
@@ -168,13 +174,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const checkMidnightRollover = () => {
       const todayStr = new Date().toISOString().split('T')[0];
       if (todayStr !== currentDayDateString) {
-        // Clock has hit 00:00 midnight! Perform auto-rollover
         archiveCurrentDayAndResetBoard();
         setCurrentDayDateString(todayStr);
       }
     };
 
-    const interval = setInterval(checkMidnightRollover, 10000); // Check every 10 seconds
+    const interval = setInterval(checkMidnightRollover, 10000);
     return () => clearInterval(interval);
   }, [isMounted, currentDayDateString, archiveCurrentDayAndResetBoard]);
 
@@ -200,7 +205,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     pushServerAction({ action: 'SYNC_ALL', orders: loadedOrders });
   }, [pushServerAction]);
 
-  // Real-time polling (1s) & window focus listeners
+  // Real-time polling (5s) & window focus listeners
   useEffect(() => {
     if (!isMounted) return;
 
@@ -217,6 +222,36 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       document.removeEventListener('visibilitychange', handleFocus);
     };
   }, [isMounted, pullOrdersFromServer]);
+
+  // Supabase Realtime channel listener (if Supabase credentials configured)
+  useEffect(() => {
+    const isSupabaseConfigured =
+      process.env.NEXT_PUBLIC_SUPABASE_URL &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('your-project-ref') &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes('placeholder');
+
+    if (!isSupabaseConfigured) return;
+
+    try {
+      const supabase = createClient();
+      const channel = supabase
+        .channel('public:orders')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'orders' },
+          () => {
+            pullOrdersFromServer();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (err) {
+      console.warn('Realtime channel subscription notice:', err);
+    }
+  }, [pullOrdersFromServer]);
 
   // Save to localStorage on state change
   useEffect(() => {
@@ -343,9 +378,12 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newOrder;
   };
 
-  const getOrderById = (orderId: string) => {
-    return orders.find((o) => o.id === orderId || o.id === `#${orderId}` || orderId.endsWith(o.id));
-  };
+  const getOrderById = useCallback(
+    (orderId: string) => {
+      return orders.find((o) => o.id === orderId || o.id === `#${orderId}` || orderId.endsWith(o.id));
+    },
+    [orders]
+  );
 
   const advanceOrderStatus = (orderId: string, nextStatus: OrderStatus) => {
     const nextOrders = orders.map((o) =>

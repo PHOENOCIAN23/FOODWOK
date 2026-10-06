@@ -227,7 +227,7 @@ export const ShaderGradient: React.FC<ShaderGradientProps> = ({
     }
 
     let animationFrameId: number;
-    let startTime = performance.now();
+    const startTime = performance.now();
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);

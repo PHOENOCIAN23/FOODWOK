@@ -67,9 +67,10 @@ export default function CheckoutPage() {
 
     setIsSubmitting(true);
 
+    let newOrder: Order | null = null;
     try {
       // 1. Create order instance in state & real-time sync pipeline
-      const newOrder = createOrder(
+      newOrder = createOrder(
         {
           fullName,
           phoneNumber,
@@ -113,8 +114,7 @@ export default function CheckoutPage() {
       }
     } catch (err) {
       console.error('Paystack checkout error:', err);
-      // Fallback local completion
-      const fallbackOrder = createOrder(
+      const fallbackOrder = newOrder || createOrder(
         { fullName, phoneNumber, address, landmark },
         cartItems,
         subtotalInKobo,
