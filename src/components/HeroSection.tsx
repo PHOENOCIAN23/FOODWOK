@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Star, ArrowRight } from 'lucide-react';
 import { MenuItem } from '@/types/foodwok';
 import { formatNairaFromKobo } from '@/lib/currency';
+import { ShaderGradient } from '@/components/ui/ShaderGradient';
 
 interface HeroSectionProps {
   heroItem: MenuItem;
@@ -28,7 +29,21 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             backgroundImage: `url('${heroItem.image}')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/20" />
+
+        {/* 3D Animated Shader Gradient Wok Heat Wave */}
+        <div className="absolute inset-0 opacity-35 mix-blend-screen pointer-events-none">
+          <ShaderGradient
+            color1="#EB3223"
+            color2="#F59E0B"
+            color3="#1E1B4B"
+            uSpeed={0.3}
+            uStrength={1.5}
+            uDensity={1.2}
+            uFrequency={4.5}
+            brightness={1.1}
+          />
+        </div>
 
         {/* Content Box matching reference image */}
         <div className="relative z-10 p-8 sm:p-12 md:p-16 max-w-2xl text-white space-y-6">

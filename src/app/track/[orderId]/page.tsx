@@ -6,6 +6,7 @@ import { ChevronLeft, Phone, CheckCircle2, Clock, ChefHat, Bike, PartyPopper, Sp
 import { Navbar } from '@/components/Navbar';
 import { useOrders } from '@/context/OrderContext';
 import { OrderStatus } from '@/types/foodwok';
+import { Blobatar } from '@/components/ui/Blobatar';
 
 export default function OrderTrackingPage({ params }: { params: Promise<{ orderId: string }> }) {
   const resolvedParams = use(params);
@@ -170,12 +171,11 @@ export default function OrderTrackingPage({ params }: { params: Promise<{ orderI
           {/* Bottom Left Card: Rider Details (Dynamic Red -> Emerald Green shift) */}
           <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-xs flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <div
-                className={`w-14 h-14 rounded-full text-white font-black text-xl flex items-center justify-center shadow-md transition-colors ${
-                  isDelivered ? 'bg-emerald-600' : 'bg-[#EB3223]'
-                }`}
-              >
-                EA
+              <div className="w-14 h-14 rounded-full border-2 border-slate-100 shadow-md flex items-center justify-center overflow-hidden bg-slate-50 shrink-0">
+                <Blobatar
+                  name={currentOrder?.riderName || 'Emeka Adeleke'}
+                  size={52}
+                />
               </div>
               <div className="space-y-0.5">
                 <span className="text-slate-400 text-xs font-semibold block">

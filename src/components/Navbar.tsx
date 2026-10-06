@@ -7,6 +7,8 @@ import { Search, ShoppingCart, User } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useMenu } from '@/context/MenuContext';
+import { LiquidLogo } from '@/components/ui/LiquidLogo';
+import { Blobatar } from '@/components/ui/Blobatar';
 
 interface NavbarProps {
   activeCategory?: string;
@@ -55,14 +57,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
-        {/* Brand Logo matching reference screenshot */}
+        {/* Brand Logo with Liquid Metal Shader */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="bg-[#EB3223] text-white font-extrabold px-3 py-1.5 rounded-xl text-lg tracking-wider shadow-sm group-hover:scale-105 transition-transform duration-200">
-            FW
-          </div>
-          <span className="text-2xl font-black tracking-tight text-slate-900">
-            Foodwok
-          </span>
+          <LiquidLogo size="md" variant="crimson-chrome" />
         </Link>
 
         {/* Center Category Filters (only on home / menu pages) */}
@@ -119,14 +116,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </Link>
 
-          {/* User Profile Avatar matching reference screenshot */}
+          {/* User Profile Avatar with deterministic Blobatar */}
           {user ? (
             <Link
               href="/profile"
-              className="w-9 h-9 rounded-full bg-[#EB3223] text-white font-bold flex items-center justify-center shadow-sm hover:opacity-90 transition-opacity"
-              title={`${user.firstName} ${user.lastName}`}
+              className="w-10 h-10 rounded-full border-2 border-white shadow-sm hover:scale-105 transition-transform flex items-center justify-center overflow-hidden bg-slate-100"
+              title={`${user.firstName || 'User'} ${user.lastName || ''}`}
             >
-              {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'C'}
+              <Blobatar
+                name={user.email || `${user.firstName}-${user.lastName}` || 'customer'}
+                size={36}
+              />
             </Link>
           ) : (
             <button

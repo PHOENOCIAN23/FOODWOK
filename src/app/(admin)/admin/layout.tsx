@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChefHat, UtensilsCrossed, BarChart3, Store, ShieldAlert, ShieldCheck, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { LiquidLogo } from '@/components/ui/LiquidLogo';
+import { Blobatar } from '@/components/ui/Blobatar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -117,13 +119,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="sticky top-0 z-40 bg-slate-900 text-white shadow-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
           <div className="flex items-center gap-6">
-            {/* Brand Logo */}
-            <Link href="/admin/kds" className="flex items-center gap-2">
-              <div className="bg-[#EB3223] text-white font-black px-2.5 py-1 rounded-xl text-base tracking-wider shadow-sm">
-                FW
-              </div>
-              <span className="text-xl font-black tracking-tight text-white">
-                Foodwok <span className="text-xs font-bold text-red-400 uppercase tracking-widest ml-1">Admin</span>
+            {/* Brand Logo with Liquid Metal Crest */}
+            <Link href="/admin/kds" className="flex items-center gap-2.5 group">
+              <LiquidLogo
+                size="sm"
+                variant={role === 'ADMIN' ? 'molten-gold' : 'crimson-chrome'}
+                showText={false}
+              />
+              <span className="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                Foodwok
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-500/20 text-red-400 border border-red-500/30">
+                  {role === 'ADMIN' ? 'Admin' : 'Kitchen'}
+                </span>
               </span>
             </Link>
 
@@ -150,12 +157,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </nav>
           </div>
 
-          {/* Right Role Badge, Storefront Link & Admin Log Out Sequence */}
+          {/* Right Role Badge, Staff Avatar & Admin Log Out Sequence */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <span className="bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 whitespace-nowrap shrink-0">
-              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-              <span>ROLE: {role}</span>
-            </span>
+            <div className="flex items-center gap-2 bg-slate-800/90 border border-slate-700/80 pl-1.5 pr-3 py-1 rounded-full shadow-xs">
+              <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
+                <Blobatar
+                  name={activeUser?.email || role}
+                  size={26}
+                />
+              </div>
+              <span className="text-amber-400 text-xs font-extrabold flex items-center gap-1 whitespace-nowrap">
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                <span>{role}</span>
+              </span>
+            </div>
 
 
 

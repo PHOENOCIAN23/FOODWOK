@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Lock, ShieldAlert, ChefHat, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { UserRole } from '@/types/foodwok';
+import { LiquidLogo } from '@/components/ui/LiquidLogo';
+import { ShaderGradient } from '@/components/ui/ShaderGradient';
 
 function StaffLoginContent() {
   const router = useRouter();
@@ -83,11 +85,23 @@ function StaffLoginContent() {
 
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/80 to-slate-900/60" />
 
-        {/* Top Left Staff Portal Title */}
-        <div className="relative z-10 flex items-center gap-2.5">
-          <div className="bg-[#EB3223] text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider shadow-md">
-            FW
-          </div>
+        {/* 3D Animated Shader Mesh Gradient Backdrop */}
+        <div className="absolute inset-0 opacity-45 mix-blend-screen pointer-events-none">
+          <ShaderGradient
+            color1="#EB3223"
+            color2="#B91C1C"
+            color3="#0F172A"
+            uSpeed={0.25}
+            uStrength={1.4}
+            uDensity={1.3}
+            uFrequency={4.0}
+            brightness={1.0}
+          />
+        </div>
+
+        {/* Top Left Staff Portal Title with Liquid Metal Logo */}
+        <div className="relative z-10 flex items-center gap-3">
+          <LiquidLogo size="sm" variant="crimson-chrome" showText={false} />
           <span className="text-xl font-black tracking-tight text-white drop-shadow-xs flex items-center gap-2">
             Foodwok Operations
             <span className="bg-red-500/20 text-red-400 border border-red-500/30 text-[10px] uppercase font-black px-2 py-0.5 rounded-md">

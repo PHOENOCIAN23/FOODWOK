@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, MailCheck, AlertCircle, Info } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { LiquidLogo } from '@/components/ui/LiquidLogo';
+import { ShaderGradient } from '@/components/ui/ShaderGradient';
 
 function SignUpContent() {
   const router = useRouter();
@@ -74,11 +76,23 @@ function SignUpContent() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-[#EB3223]/40" />
 
-        {/* Top Logo */}
+        {/* 3D Animated Shader Gradient */}
+        <div className="absolute inset-0 opacity-40 mix-blend-screen pointer-events-none">
+          <ShaderGradient
+            color1="#EB3223"
+            color2="#F59E0B"
+            color3="#1E1B4B"
+            uSpeed={0.3}
+            uStrength={1.5}
+            uDensity={1.2}
+            uFrequency={4.2}
+            brightness={1.05}
+          />
+        </div>
+
+        {/* Top Logo with Liquid Metal Shader */}
         <div className="relative z-10 flex items-center gap-2">
-          <div className="bg-[#EB3223] text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider shadow-md">
-            FW
-          </div>
+          <LiquidLogo size="md" variant="crimson-chrome" showText={false} />
           <span className="text-2xl font-black tracking-tight text-white">
             Foodwok
           </span>
