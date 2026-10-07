@@ -23,6 +23,8 @@ interface AuthContextType {
   phoneLoginSendOTP: (phoneNumber: string) => Promise<string>;
   phoneLoginVerifyOTP: (otpCode: string, phone: string) => Promise<void>;
   sendEmailVerificationLink: () => Promise<void>;
+  resetPasswordForEmail: (email: string) => Promise<void>;
+  updateUserPassword: (newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (updatedData: Partial<UserProfile>) => Promise<void>;
   addAddress: (newAddr: Omit<SavedAddress, 'id'>) => Promise<SavedAddress>;
@@ -218,6 +220,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) throw error;
   };
 
+  const resetPasswordForEmail = async (email: string) => {
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://foodwok.vercel.app';
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${origin}/auth/callback?next=/auth/reset-password`,
+    });
+    if (error) throw error;
+  };
+
+  const updateUserPassword = async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    if (error) throw error;
+  };
+
   const logout = async () => {
     try {
       await supabase.auth.signOut();
@@ -299,6 +316,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         phoneLoginSendOTP,
         phoneLoginVerifyOTP,
         sendEmailVerificationLink,
+        resetPasswordForEmail,
+        updateUserPassword,
         logout,
         updateProfile,
         addAddress,
