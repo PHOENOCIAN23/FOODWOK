@@ -407,7 +407,7 @@ export default function StandaloneAccountingLedgerPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="Search #FW-94344 or name..."
+                placeholder="Search order ID (e.g. #FW-10293) or customer name..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-200 rounded-2xl pl-10 pr-4 py-3 text-slate-900 text-xs font-bold focus:outline-none focus:border-[#EB3223]"

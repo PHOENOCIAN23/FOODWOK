@@ -1,50 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Order, OrderStatus } from '@/types/foodwok';
 
-const INITIAL_DEMO_ORDER: Order = {
-  id: 'FW-94344',
-  status: 'preparing',
-  paymentStatus: 'PAID',
-  paystackReference: 'pstk_ref_94344_live',
-  paystackVerified: true,
-  items: [
-    {
-      id: 'demo-item-1',
-      menuItem: {
-        id: 'smoky-jollof-rice',
-        name: 'Smoky Party Jollof Rice',
-        category: 'rice',
-        description: 'Perfectly seasoned Nigerian party jollof with rich tomato base, smoked paprika, and a charcoal finish.',
-        priceInKobo: 350000,
-        image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80',
-        rating: 4.9,
-        addOns: [],
-      },
-      quantity: 1,
-      selectedAddOns: [
-        { id: 'extra-beef', name: 'Extra Beef', priceInKobo: 50000 },
-        { id: 'salad', name: 'Salad / Coleslaw', priceInKobo: 20000 },
-      ],
-      itemTotalInKobo: 420000,
-    },
-  ],
-  deliveryDetails: {
-    fullName: 'Chidi Okeke',
-    phoneNumber: '+234 800 000 0000',
-    address: '12 Adeola Odeku Street, Victoria Island, Lagos',
-    landmark: 'Near GTBank branch',
-  },
-  subtotalInKobo: 420000,
-  deliveryFeeInKobo: 50000,
-  totalInKobo: 470000,
-  createdAt: '2:15 PM',
-  createdAtTimestamp: Date.now() - 10 * 60 * 1000,
-  estimatedDeliveryMinutes: '30–45',
-  riderName: 'Emeka Adeleke',
-  riderVehicle: 'Honda CB',
-  riderRating: 4.95,
-};
-
 interface ServerOrdersStore {
   orders: Order[];
   lastUpdated: number;
@@ -57,9 +13,16 @@ declare global {
 
 if (!globalThis._foodwok_server_orders_store) {
   globalThis._foodwok_server_orders_store = {
-    orders: [INITIAL_DEMO_ORDER],
+    orders: [],
     lastUpdated: Date.now(),
   };
+}
+
+// In case the store was previously initialized with the legacy demo order in this Node process
+if (globalThis._foodwok_server_orders_store) {
+  globalThis._foodwok_server_orders_store.orders = globalThis._foodwok_server_orders_store.orders.filter(
+    (o) => o.id !== 'FW-94344'
+  );
 }
 
 export async function GET() {
@@ -88,6 +51,13 @@ export async function POST(request: Request) {
       );
       store.lastUpdated = Date.now();
     } else if (action === 'SYNC_ALL' && Array.isArray(orders)) {
+      // Merge: retain any server orders not in the incoming list so other clients' orders are never overwritten
+      const incomingIds = new Set(orders.map((o) => o.id));
+      const retainedServerOrders = store.orders.filter((o) => !incomingIds.has(o.id));
+      store.orders = [...orders, ...retainedServerOrders];
+      store.lastUpdated = Date.now();
+    } else if (action === 'ARCHIVE_RESET' && Array.isArray(orders)) {
+      // Dedicated action for end-of-day archiving to clean up completed orders
       store.orders = orders;
       store.lastUpdated = Date.now();
     }

@@ -26,61 +26,17 @@ interface OrderContextType {
   archiveCurrentDayAndResetBoard: () => Promise<boolean>;
 }
 
-const INITIAL_DEMO_ORDER: Order = {
-  id: 'FW-94344',
-  status: 'preparing',
-  paymentStatus: 'PAID',
-  paystackReference: 'pstk_ref_94344_live',
-  paystackVerified: true,
-  items: [
-    {
-      id: 'demo-item-1',
-      menuItem: {
-        id: 'smoky-jollof-rice',
-        name: 'Smoky Party Jollof Rice',
-        category: 'rice',
-        description: 'Perfectly seasoned Nigerian party jollof with rich tomato base, smoked paprika, and a charcoal finish.',
-        priceInKobo: 350000,
-        image: '/images/dishes/jollof-rice.jpg',
-        rating: 4.9,
-        addOns: [],
-      },
-      quantity: 1,
-      selectedAddOns: [
-        { id: 'extra-beef', name: 'Extra Beef', priceInKobo: 50000 },
-        { id: 'salad', name: 'Salad / Coleslaw', priceInKobo: 20000 },
-      ],
-      itemTotalInKobo: 420000,
-    },
-  ],
-  deliveryDetails: {
-    fullName: 'Chidi Okeke',
-    phoneNumber: '+234 800 000 0000',
-    address: '12 Adeola Odeku Street, Victoria Island, Lagos',
-    landmark: 'Near GTBank branch',
-  },
-  subtotalInKobo: 420000,
-  deliveryFeeInKobo: 50000,
-  totalInKobo: 470000,
-  createdAt: '2:15 PM',
-  createdAtTimestamp: Date.now() - 10 * 60 * 1000, // 10 mins ago
-  estimatedDeliveryMinutes: '30–45',
-  riderName: 'Emeka Adeleke',
-  riderVehicle: 'Honda CB',
-  riderRating: 4.95,
-};
-
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [orders, setOrders] = useState<Order[]>([INITIAL_DEMO_ORDER]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [isMounted, setIsMounted] = useState(false);
   const [isSoundEnabled, setIsSoundEnabled] = useState(true);
   const lastServerSyncTimestampRef = useRef<number>(0);
   const [currentDayDateString, setCurrentDayDateString] = useState<string>(
     () => new Date().toISOString().split('T')[0]
   );
-  const knownOrderIdsRef = useRef<Set<string>>(new Set([INITIAL_DEMO_ORDER.id]));
+  const knownOrderIdsRef = useRef<Set<string>>(new Set());
 
   // Helper to push actions to server /api/orders-sync
   const pushServerAction = useCallback(async (payload: Record<string, unknown>) => {
@@ -105,11 +61,11 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const res = await fetch('/api/orders-sync');
       if (res.ok) {
         const data = await res.json();
-        if (data && data.lastUpdated && data.lastUpdated > lastServerSyncTimestampRef.current) {
-          if (Array.isArray(data.orders)) {
-            const serverOrders: Order[] = data.orders;
+        if (data && Array.isArray(data.orders)) {
+          const serverOrders: Order[] = data.orders.filter((o: Order) => o.id !== 'FW-94344');
 
-            // Check if a new order arrived for chime alert
+          // If server has newer data than our last sync
+          if (data.lastUpdated && data.lastUpdated > lastServerSyncTimestampRef.current) {
             let hasNewOrder = false;
             for (const o of serverOrders) {
               if (!knownOrderIdsRef.current.has(o.id)) {
@@ -126,46 +82,57 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             try {
               localStorage.setItem('foodwok_orders', JSON.stringify(serverOrders));
             } catch {}
+            lastServerSyncTimestampRef.current = data.lastUpdated;
+          } else if (serverOrders.length === 0 && lastServerSyncTimestampRef.current === 0) {
+            // Server is empty; check if client has existing valid orders in localStorage to re-seed server
+            const saved = localStorage.getItem('foodwok_orders');
+            if (saved) {
+              try {
+                const parsed: Order[] = JSON.parse(saved).filter((o: Order) => o.id !== 'FW-94344');
+                if (Array.isArray(parsed) && parsed.length > 0) {
+                  setOrders(parsed);
+                  parsed.forEach((o) => knownOrderIdsRef.current.add(o.id));
+                  pushServerAction({ action: 'SYNC_ALL', orders: parsed });
+                }
+              } catch {}
+            }
           }
-          lastServerSyncTimestampRef.current = data.lastUpdated;
         }
       }
     } catch {}
-  }, [isSoundEnabled]);
+  }, [isSoundEnabled, pushServerAction]);
 
   // Archive current day's completed orders to ledger database and clear completed board
   const archiveCurrentDayAndResetBoard = useCallback(async (): Promise<boolean> => {
     try {
       const todayStr = new Date().toISOString().split('T')[0];
-      let remainingActive: Order[] = [];
+      const completedOrders = orders.filter((o) => o.status === 'delivered');
+      const remainingActive = orders.filter((o) => o.status !== 'delivered');
 
-      setOrders((prevOrders) => {
-        const completedOrders = prevOrders.filter((o) => o.status === 'delivered');
-        if (completedOrders.length > 0) {
-          fetch('/api/accounting', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              action: 'ARCHIVE_DAY',
-              targetDateString: todayStr,
-              orders: prevOrders,
-            }),
-          }).catch(() => {});
-        }
-        remainingActive = prevOrders.filter((o) => o.status !== 'delivered');
-        return remainingActive;
-      });
+      if (completedOrders.length > 0) {
+        fetch('/api/accounting', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'ARCHIVE_DAY',
+            targetDateString: todayStr,
+            orders,
+          }),
+        }).catch(() => {});
+      }
 
+      setOrders(remainingActive);
       try {
         localStorage.setItem('foodwok_orders', JSON.stringify(remainingActive));
       } catch {}
-      await pushServerAction({ action: 'SYNC_ALL', orders: remainingActive });
+
+      await pushServerAction({ action: 'ARCHIVE_RESET', orders: remainingActive });
 
       return true;
     } catch {
       return false;
     }
-  }, [pushServerAction]);
+  }, [orders, pushServerAction]);
 
   // Check for Midnight (00:00) Rollover automatically
   useEffect(() => {
@@ -183,27 +150,29 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return () => clearInterval(interval);
   }, [isMounted, currentDayDateString, archiveCurrentDayAndResetBoard]);
 
-  // Initial load from localStorage & server seed
+  // Initial load from localStorage & pull from server
   useEffect(() => {
     setIsMounted(true);
     const saved = localStorage.getItem('foodwok_orders');
-    let loadedOrders = [INITIAL_DEMO_ORDER];
-
     if (saved) {
       try {
         const parsed: Order[] = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          loadedOrders = parsed;
+        if (Array.isArray(parsed)) {
+          // Clean out legacy demo order if present in browser storage
+          const filtered = parsed.filter((o) => o.id !== 'FW-94344');
+          if (filtered.length > 0) {
+            setOrders(filtered);
+            filtered.forEach((o) => knownOrderIdsRef.current.add(o.id));
+          } else {
+            localStorage.removeItem('foodwok_orders');
+          }
         }
       } catch {}
     }
 
-    setOrders(loadedOrders);
-    loadedOrders.forEach((o) => knownOrderIdsRef.current.add(o.id));
-
-    // Seed server
-    pushServerAction({ action: 'SYNC_ALL', orders: loadedOrders });
-  }, [pushServerAction]);
+    // Immediately fetch latest orders from server
+    pullOrdersFromServer();
+  }, [pullOrdersFromServer]);
 
   // Real-time polling (5s) & window focus listeners
   useEffect(() => {
@@ -291,8 +260,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     knownOrderIdsRef.current.add(newOrder.id);
-    const nextOrders = [newOrder, ...orders];
-    setOrders(nextOrders);
+    setOrders((prev) => {
+      const nextOrders = [newOrder, ...prev.filter((o) => o.id !== newOrder.id)];
+      try {
+        localStorage.setItem('foodwok_orders', JSON.stringify(nextOrders));
+      } catch {}
+      return nextOrders;
+    });
 
     if (isSoundEnabled) {
       playKitchenOrderChime();
@@ -366,8 +340,13 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     knownOrderIdsRef.current.add(newOrder.id);
-    const nextOrders = [newOrder, ...orders];
-    setOrders(nextOrders);
+    setOrders((prev) => {
+      const nextOrders = [newOrder, ...prev.filter((o) => o.id !== newOrder.id)];
+      try {
+        localStorage.setItem('foodwok_orders', JSON.stringify(nextOrders));
+      } catch {}
+      return nextOrders;
+    });
 
     if (isSoundEnabled) {
       playKitchenOrderChime();
@@ -386,12 +365,17 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   const advanceOrderStatus = (orderId: string, nextStatus: OrderStatus) => {
-    const nextOrders = orders.map((o) =>
-      o.id === orderId || o.id === `#${orderId}` || orderId.endsWith(o.id)
-        ? { ...o, status: nextStatus }
-        : o
-    );
-    setOrders(nextOrders);
+    setOrders((prev) => {
+      const nextOrders = prev.map((o) =>
+        o.id === orderId || o.id === `#${orderId}` || orderId.endsWith(o.id)
+          ? { ...o, status: nextStatus }
+          : o
+      );
+      try {
+        localStorage.setItem('foodwok_orders', JSON.stringify(nextOrders));
+      } catch {}
+      return nextOrders;
+    });
 
     pushServerAction({ action: 'UPDATE_STATUS', orderId, status: nextStatus });
   };
