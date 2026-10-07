@@ -236,13 +236,13 @@ function SignUpContent() {
 
           <p className="text-[11px] text-slate-400 text-center font-medium leading-relaxed">
             By signing up you agree to our{' '}
-            <a href="#" className="text-[#EB3223] hover:underline">
+            <Link href="/terms" className="text-[#EB3223] font-semibold hover:underline">
               Terms of Service
-            </a>{' '}
+            </Link>{' '}
             and{' '}
-            <a href="#" className="text-[#EB3223] hover:underline">
+            <Link href="/privacy" className="text-[#EB3223] font-semibold hover:underline">
               Privacy Policy
-            </a>
+            </Link>
           </p>
         </form>
 

@@ -189,3 +189,36 @@ export const SkeletonCheckout: React.FC = () => (
     </div>
   </div>
 );
+
+// 9. Legal Document Skeleton (Terms & Privacy)
+export const SkeletonLegalPage: React.FC = () => (
+  <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 w-full">
+    <div className="space-y-3">
+      <ShimmerPulse className="w-28 h-6 rounded-full" />
+      <ShimmerPulse className="w-72 h-10 rounded-2xl" />
+      <ShimmerPulse className="w-96 h-4 rounded-md" />
+    </div>
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4">
+      <div className="hidden lg:block lg:col-span-4 space-y-3">
+        <ShimmerPulse className="w-full h-48 rounded-3xl" />
+        <ShimmerPulse className="w-full h-24 rounded-2xl" />
+      </div>
+      <div className="lg:col-span-8 space-y-6">
+        <ShimmerPulse className="w-full h-36 rounded-3xl" />
+        <div className="space-y-3">
+          <ShimmerPulse className="w-48 h-6 rounded-lg" />
+          <ShimmerPulse className="w-full h-20 rounded-2xl" />
+        </div>
+        <div className="space-y-3">
+          <ShimmerPulse className="w-56 h-6 rounded-lg" />
+          <ShimmerPulse className="w-full h-28 rounded-2xl" />
+        </div>
+        <div className="space-y-3">
+          <ShimmerPulse className="w-40 h-6 rounded-lg" />
+          <ShimmerPulse className="w-full h-24 rounded-2xl" />
+        </div>
+      </div>
+    </div>
+  </div>
+);
+

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { HeroSection } from '@/components/HeroSection';
 import { FoodMenuGrid } from '@/components/FoodMenuGrid';
+import { Footer } from '@/components/Footer';
 import { useMenu } from '@/context/MenuContext';
 
 export default function HomePage() {
@@ -57,6 +58,10 @@ export default function HomePage() {
           searchQuery={searchQuery}
         />
       </main>
+
+      {/* Site Footer */}
+      <Footer />
     </div>
   );
 }
+
