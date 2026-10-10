@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Blobatar } from '@/components/ui/Blobatar';
 import { ShieldCheck, Lock, Heart, Phone, Mail, MapPin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -13,8 +12,8 @@ export const Footer: React.FC = () => {
           {/* Brand & Mascot Column */}
           <div className="lg:col-span-2 space-y-4">
             <Link href="/" className="inline-flex items-center gap-3 group">
-              <div className="p-1 rounded-2xl bg-slate-900 border border-slate-800 shadow-inner group-hover:scale-105 transition-transform">
-                <Blobatar name="Foodwok Kitchen" size={44} silhouette="organic" animate={true} />
+              <div className="bg-[#EB3223] text-white font-black px-3 py-1.5 rounded-xl text-lg tracking-wider shadow-sm group-hover:scale-105 transition-transform duration-200">
+                FW
               </div>
               <div>
                 <span className="text-2xl font-black tracking-tight text-white block">

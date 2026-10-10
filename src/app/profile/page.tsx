@@ -6,7 +6,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { ChevronLeft, Plus, MapPin, Trash2, Check, LogOut, ShoppingBag, AlertCircle, Sparkles } from 'lucide-react';
 import { Navbar } from '@/components/Navbar';
 import { useAuth } from '@/context/AuthContext';
-import { Blobatar } from '@/components/ui/Blobatar';
 
 function ProfileContent() {
   const router = useRouter();
@@ -164,11 +163,8 @@ function ProfileContent() {
         {/* User Header with Verification Status Badges */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-6 flex-wrap gap-4">
           <div className="flex items-center gap-4">
-            <div className="w-18 h-18 rounded-full border-2 border-slate-100 shadow-md flex items-center justify-center bg-slate-50 overflow-hidden shrink-0">
-              <Blobatar
-                name={email || `${firstName}-${lastName}` || 'customer'}
-                size={68}
-              />
+            <div className="w-16 h-16 rounded-full bg-[#EB3223] text-white font-black text-2xl flex items-center justify-center shadow-md shrink-0">
+              {firstName ? firstName.charAt(0).toUpperCase() : 'C'}
             </div>
             <div>
               <h2 className="text-xl font-extrabold text-slate-900">

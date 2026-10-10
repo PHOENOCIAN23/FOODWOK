@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { Blobatar } from '@/components/ui/Blobatar';
 import {
   ShieldCheck,
   Lock,
@@ -87,9 +86,11 @@ export default function PrivacyPolicyPage() {
                 </div>
               </div>
 
-              {/* DPO Avatar card with Blobatar */}
+              {/* DPO Contact card */}
               <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-5 flex items-center gap-4 max-w-xs shrink-0 shadow-lg">
-                <Blobatar name="Foodwok Data Protection Officer" size={48} silhouette="organic" animate={true} />
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-white block">Data Privacy Officer</span>
                   <p className="text-[11px] text-slate-400">Dedicated to your rights and NDPA compliance.</p>
@@ -446,7 +447,9 @@ export default function PrivacyPolicyPage() {
 
                 <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                   <div className="flex items-center gap-4">
-                    <Blobatar name="Foodwok Privacy Guardian" size={56} silhouette="capsule" animate={true} />
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                      <ShieldCheck className="w-7 h-7" />
+                    </div>
                     <div className="space-y-1">
                       <span className="font-bold text-slate-900 block text-base">Office of the Data Protection Officer</span>
                       <p className="text-xs text-slate-500">Foodwok Restaurant Nigeria Ltd • Lagos, Nigeria</p>

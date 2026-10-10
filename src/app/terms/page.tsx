@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { Blobatar } from '@/components/ui/Blobatar';
 import {
   FileText,
   ShieldCheck,
@@ -84,9 +83,11 @@ export default function TermsOfServicePage() {
                 </div>
               </div>
 
-              {/* Concierge Avatar card with Blobatar */}
+              {/* Concierge card */}
               <div className="bg-slate-800/80 border border-slate-700/80 rounded-3xl p-5 flex items-center gap-4 max-w-xs shrink-0 shadow-lg">
-                <Blobatar name="Foodwok Legal Desk" size={48} silhouette="round" animate={true} />
+                <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 text-[#EB3223] flex items-center justify-center shrink-0">
+                  <HelpCircle className="w-6 h-6" />
+                </div>
                 <div className="space-y-0.5">
                   <span className="text-xs font-bold text-white block">Questions about our terms?</span>
                   <p className="text-[11px] text-slate-400">Our customer support team is available 8am–10pm daily.</p>
@@ -385,7 +386,9 @@ export default function TermsOfServicePage() {
 
                 <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                   <div className="flex items-center gap-4">
-                    <Blobatar name="Foodwok Care Team" size={56} silhouette="organic" animate={true} />
+                    <div className="w-14 h-14 rounded-2xl bg-red-50 text-[#EB3223] flex items-center justify-center shrink-0">
+                      <HelpCircle className="w-7 h-7" />
+                    </div>
                     <div className="space-y-1">
                       <span className="font-bold text-slate-900 block text-base">Foodwok Customer Care Desk</span>
                       <p className="text-xs text-slate-500">Available Monday through Sunday, 8:00 AM – 10:00 PM WAT</p>

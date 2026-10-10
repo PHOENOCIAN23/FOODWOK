@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation';
 import { ChefHat, UtensilsCrossed, BarChart3, Store, ShieldAlert, ShieldCheck, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { LiquidLogo } from '@/components/ui/LiquidLogo';
-import { Blobatar } from '@/components/ui/Blobatar';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -157,20 +156,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </nav>
           </div>
 
-          {/* Right Role Badge, Staff Avatar & Admin Log Out Sequence */}
+          {/* Right Role Badge & Admin Log Out Sequence */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="flex items-center gap-2 bg-slate-800/90 border border-slate-700/80 pl-1.5 pr-3 py-1 rounded-full shadow-xs">
-              <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-900 border border-slate-700 flex items-center justify-center shrink-0">
-                <Blobatar
-                  name={activeUser?.email || role}
-                  size={26}
-                />
-              </div>
-              <span className="text-amber-400 text-xs font-extrabold flex items-center gap-1 whitespace-nowrap">
-                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-                <span>{role}</span>
-              </span>
-            </div>
+            <span className="bg-slate-800 border border-slate-700 text-amber-400 px-3 py-1.5 rounded-full text-xs font-extrabold flex items-center gap-1.5 whitespace-nowrap shrink-0">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              <span>ROLE: {role}</span>
+            </span>
 
 
 

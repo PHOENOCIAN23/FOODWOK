@@ -8,7 +8,6 @@ import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { useMenu } from '@/context/MenuContext';
 import { LiquidLogo } from '@/components/ui/LiquidLogo';
-import { Blobatar } from '@/components/ui/Blobatar';
 
 interface NavbarProps {
   activeCategory?: string;
@@ -116,17 +115,14 @@ export const Navbar: React.FC<NavbarProps> = ({
             )}
           </Link>
 
-          {/* User Profile Avatar with deterministic Blobatar */}
+          {/* User Profile Avatar */}
           {user ? (
             <Link
               href="/profile"
-              className="w-10 h-10 rounded-full border-2 border-white shadow-sm hover:scale-105 transition-transform flex items-center justify-center overflow-hidden bg-slate-100"
+              className="w-10 h-10 rounded-full bg-[#EB3223] text-white font-bold flex items-center justify-center shadow-sm hover:opacity-90 transition-opacity"
               title={`${user.firstName || 'User'} ${user.lastName || ''}`}
             >
-              <Blobatar
-                name={user.email || `${user.firstName}-${user.lastName}` || 'customer'}
-                size={36}
-              />
+              {user.firstName ? user.firstName.charAt(0).toUpperCase() : 'C'}
             </Link>
           ) : (
             <button
